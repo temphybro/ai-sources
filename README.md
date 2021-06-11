@@ -15,7 +15,7 @@ to operate their own App Inventor instance and/or contribute to the project.
 This code is tested and known to work with Java 8.
 
 ## Contributors
-The best way to go about integrating changes in App Inventor is to start a conversation in the [Open Source forum](https://community.appinventor.mit.edu/c/open-source-development/10) about whatever you intend to change or add.
+The best way to go about integrating changes in App Inventor is to start a conversation in the [Open Source forum](https://groups.google.com/forum/#!forum/app-inventor-open-source-dev) about whatever you intend to change or add.
 
 We use ***very brief and informal*** design documents with descriptions of the proposed changes and screenshots of how the functionality would look like and behave, in order to gather as much feedback from the community, as early as possible. We generally use shared Google docs for this (with permissions to add comments), but any format that is accessible from a web browser (and allows comments) would do.
 
@@ -51,10 +51,6 @@ start_appinventor
 ```
 
 Press Ctrl+C to quit the server. Enter exit at the prompt to leave the virtual machine. To reclaim resources when you are not actively developing, you can run `vagrant halt` to stop the virtual machine. To completely remove the virtual machine, run `vagrant destroy`. If you destroy the VM, you will need to start these instructions from the top.
-
-Note 1: For macOS users, if you are using VirtualBox and get any error while initializing the VM it may be due to security restrictions in System Preferences, consider reading [this](https://medium.com/@Aenon/mac-virtualbox-kernel-driver-error-df39e7e10cd8) article. 
-
-Note 2: If it seems like none of the dependencies are installed in the VM, run ```vagrant provision```.
 
 For better performance, consider using the manual instructions.
 
@@ -105,26 +101,13 @@ App Inventor uses Blockly, the web-based visual programming editor from Google, 
 
     $ git submodule update --init
 
-For developers who will be working on Blockly within the context of App Inventor, the preferred checkout procedure is to perform a `git submodule init`, edit the `.git/config` file to use the read/write SSH URL for [MIT CML's Blockly fork](https://github.com/mit-cml/blockly) instead of the public read-only HTTPS URL assumed by default (to support pushing changes). After changing `.git/config`, a `git submodule update` will pull the repository.
+For developers who will be working on Blocky within the context of App Inventor, the preferred checkout procedure is to perform a `git submodule init`, edit the `.git/config` file to use the read/write SSH URL for [MIT CML's Blockly fork](https://github.com/mit-cml/blockly) instead of the public read-only HTTPS URL assumed by default (to support pushing changes). After changing `.git/config`, a `git submodule update` will pull the repository.
 
 If you need to switch back to a branch that does contains the Blockly and Closure Library sources in the tree, you will need to run the command:
 
-    $ git submodule deinit --all
+    $ git submodule deinit .
 
 to clear out the submodules ___before switching branches___. When switching back, you will need to repeat the initialization and update procedure above.
-
-### Troubleshooting common installation issues
-Run this command to run a self-diagnosis of your environment. This command tries to figure out common installation issues and offers you a solution to fix them yourself. Make sure this passes all the checks before you proceed further.
-
-#### Linux and macOS
-```bash
-./buildtools doctor
-```
-
-#### Windows
-```bash
-buildtools doctor
-```
 
 ### Compiling
 Before compiling the code, an [auth key](https://docs.google.com/document/pub?id=1Xc9yt02x3BRoq5m1PJHBr81OOv69rEBy8LVG_84j9jc#h.yikyg2e1rfut) is needed. You can create one by running the following commands:
@@ -167,35 +150,6 @@ Before entering or scanning the QR code in the Companion, check the box labeled 
 The automated tests depend on [Phantomjs](http://phantomjs.org/). Make sure you install it and add it to your path. After that, you can run all tests by typing the following in a terminal window:
 
     $ ant tests
-
-### Building Release Code
-
-Release builds with optimizations turned on for the web components of the system can be done by passing `-Drelease=true` to `ant`, e.g.:
-
-```
-ant -Drelease=true noplay
-```
-
-The release configuration sets the following additional options:
-
-- Blockly Editor is compiled with SIMPLE optimizations (instead of RAW)
-- App Engine YaClient module is compiled without `<collapse-all-properties/>` to create per-language/browser builds
-- App Engine YaClient module is compiled with optimization tuned to 9 and with 8 threads
-
-### Hot-reloading GWT code with 'Super Dev Mode'
-1. Run `ant devmode`
-2. [Run the main server](#running-the-main-server).
-3. Open http://localhost:9876 (*GWT CodeServer*) and drag the two bookmarklets (*Dev Mode On & Off*) to the bookmarks bar.
-4. Open http://localhost:8888 (*App Engine server*)
-5. To see changes "live":
-   1. Save your changes in file.
-   2. Click on the *"Dev Mode On"* bookmarklet.
-   3. A popup will be shown with a button to compile `ode` module.
-   4. Press that button to compile. (That button is actually a bookmarklet. So you can drag this button to the bookmarks bar as well. This will come handy for subsequent compilations)
-   5. After that, *GWT CodeServer* will compile the module incrementally.
-   6. Refresh the page and that's it! The changes are live.
-
-Logs can be found at http://localhost:9876/log/ode and SourceMaps at http://localhost:9876/sourcemaps/ode
 
 ## Need help?
 Join [our community](https://community.appinventor.mit.edu/).

@@ -16,7 +16,6 @@ import android.widget.SeekBar;
 
 import com.google.appinventor.components.annotations.DesignerComponent;
 import com.google.appinventor.components.annotations.DesignerProperty;
-import com.google.appinventor.components.annotations.IsColor;
 import com.google.appinventor.components.annotations.PropertyCategory;
 import com.google.appinventor.components.annotations.SimpleEvent;
 import com.google.appinventor.components.annotations.SimpleObject;
@@ -27,23 +26,16 @@ import com.google.appinventor.components.common.YaVersion;
 import com.google.appinventor.components.runtime.util.SdkLevel;
 
 /**
- * This class is used to display a `Slider`.
- *
- * ![Example Slider icon](images/slider.png)
- *
- * A `Slider` is a progress bar that adds a draggable thumb. You can touch the thumb and drag left
- * or right to set the slider thumb position. As the Slider thumb is dragged, it will trigger the
- * {@link #PositionChanged(float)} event, reporting the position of the `Slider` thumb. The
- * reported position of the thumb can be used to dynamically update another component attribute,
- * such as the {@link TextBox#FontSize(float)} of a `TextBox` or the
- * [Radius](animation.html#Ball.Radius) of a `Ball`.
- *
- * The `Slider` uses the following default values. However these values can be changed through the
- * Designer or Blocks editor:
- *
- *  * {@link #MinValue(float)} = 10
- *  * {@link #MaxValue(float)} = 50
- *  * {@link #ThumbPosition(float)} = 30
+ * This class is used to display a Slider.
+ * <p>The Slider is a progress bar that adds a draggable thumb. You can touch the thumb and drag
+ * left or right to set the slider thumb position. As Slider thumb is dragged, it will trigger
+ * PositionChanged event, reporting the position of the Slider thumb. The Slider uses the following
+ * default values. However these values can be changed through designer or block editor
+ * <ul>
+ * <li>MinValue</li>
+ * <li>MaxValue</li>
+ * <li>ThumbPosition</li>
+ * </ul></p>
  *
  * @author kashi01@gmail.com (M. Hossein Amerkashi)
  * @author hal@mit.edu (Hal Abelson)
@@ -216,7 +208,7 @@ public class Slider extends AndroidViewComponent implements SeekBar.OnSeekBarCha
   }
 
   /**
-   * Whether or not the slider thumb is being be shown.
+   * Whether or not the slider thumb is being be shown
    *
    * @return Whether or not the slider thumb is being be shown
    */
@@ -228,9 +220,7 @@ public class Slider extends AndroidViewComponent implements SeekBar.OnSeekBarCha
   }
 
   /**
-   * Sets the position of the slider thumb. If this value is greater than {@link #MaxValue()},
-   * then it will be set to same value as {@link #MaxValue()}. If this value is less than
-   * {@link #MinValue()}, then it will be set to same value as {@link #MinValue()}.
+   * Sets the slider thumb position.
    *
    * @param position the position of the slider thumb. This value should be between
    *                 sliderMinValue and sliderMaxValue. If this value is not within the min and
@@ -254,7 +244,6 @@ public class Slider extends AndroidViewComponent implements SeekBar.OnSeekBarCha
   /**
    * Returns the position of slider thumb
    *
-   * @suppressdoc
    * @return the slider thumb position
    */
   @SimpleProperty(category = PropertyCategory.APPEARANCE,
@@ -264,13 +253,6 @@ public class Slider extends AndroidViewComponent implements SeekBar.OnSeekBarCha
   }
 
 
-  /**
-   * Sets the minimum value of slider. If the new minimum is greater than the
-   * current maximum, then minimum and maximum will both be set to this value.
-   * Setting `MinValue` resets the thumb position to halfway between `MinValue`
-   * and {@link #MaxValue()} and signals the {@link #PositionChanged(float)}`
-   * event.
-   */
   @DesignerProperty(editorType = PropertyTypeConstants.PROPERTY_TYPE_FLOAT,
       defaultValue = Component.SLIDER_MIN_VALUE + "")
   @SimpleProperty(description = "Sets the minimum value of slider.  Changing the minimum value " +
@@ -294,7 +276,6 @@ public class Slider extends AndroidViewComponent implements SeekBar.OnSeekBarCha
   /**
    * Returns the value of slider min value.
    *
-   * @suppressdoc
    * @return the value of slider min value.
    */
   @SimpleProperty(category = PropertyCategory.APPEARANCE,
@@ -303,12 +284,6 @@ public class Slider extends AndroidViewComponent implements SeekBar.OnSeekBarCha
     return minValue;
   }
 
-  /**
-   * Sets the maximum value of slider. If the new maximum is less than the
-   * current minimum, then minimum and maximum will both be set to this value.
-   * Setting `MaxValue` resets the thumb position to halfway between {@link #MinValue()}
-   * and `MaxValue` and signals the {@link #PositionChanged(float)}` event.
-   */
   @DesignerProperty(editorType = PropertyTypeConstants.PROPERTY_TYPE_FLOAT,
       defaultValue = Component.SLIDER_MAX_VALUE + "")
   @SimpleProperty(description = "Sets the maximum value of slider.  Changing the maximum value " +
@@ -330,7 +305,6 @@ public class Slider extends AndroidViewComponent implements SeekBar.OnSeekBarCha
   /**
    * Returns the slider max value
    *
-   * @suppressdoc
    * @return the slider max value
    */
   @SimpleProperty(category = PropertyCategory.APPEARANCE,
@@ -351,7 +325,6 @@ public class Slider extends AndroidViewComponent implements SeekBar.OnSeekBarCha
   @SimpleProperty(
       description = "The color of slider to the left of the thumb.",
       category = PropertyCategory.APPEARANCE)
-  @IsColor
   public int ColorLeft() {
     return leftColor;
   }
@@ -381,9 +354,8 @@ public class Slider extends AndroidViewComponent implements SeekBar.OnSeekBarCha
    * alpha, red, green, and blue components
    */
   @SimpleProperty(
-      description = "The color of slider to the right of the thumb.",
+      description = "The color of slider to the left of the thumb.",
       category = PropertyCategory.APPEARANCE)
-  @IsColor
   public int ColorRight() {
     return rightColor;
   }
@@ -468,4 +440,5 @@ public class Slider extends AndroidViewComponent implements SeekBar.OnSeekBarCha
     //ability to change the slider height and don't want display this in our block editor
     container.setChildHeight(this, height);
   }
+
 }

@@ -6,33 +6,26 @@
 
 package com.google.appinventor.components.runtime.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import junit.framework.TestCase;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 /**
  * Tests JsonUtil class.
  *
  *
  */
-@RunWith(RobolectricTestRunner.class)
-@Config(sdk = 23, manifest="tests/AndroidManifest.xml")
-public class JsonUtilTest {
+public class JsonUtilTest extends TestCase {
 
   // The elements in this next test were commented out due to a change in the
   // Json.javq library that makes geStringListFromJsonArray throw an error
   // if the item being operated on is not a string.
-  @Test
   public void testGetStringListFromJsonArray() throws JSONException {
 //   Object[] firstArray = {"Houston", "we", "have", "a", "problem"};
 //   Object[] secondArray = {"China", "we", "have", "an", "ultimatum"};
@@ -40,7 +33,7 @@ public class JsonUtilTest {
     List<String> mixedList = new ArrayList<String>();
     mixedList.add("Hello.");
     mixedList.add("O hi.");
-    mixedList.add(Integer.toString(9));
+    mixedList.add(new Integer(9).toString());
 //    mixedList.add(new JSONArray(Arrays.asList(firstArray)).toString());
 //    mixedList.add(new JSONArray(Arrays.asList(secondArray)).toString());
 
@@ -48,7 +41,7 @@ public class JsonUtilTest {
       "[" +
       "\"Hello.\"," +
       "\"O hi.\"," +
-      "\"9\""  +
+      "\"9\","  +
       //    "[\"Houston\",\"we\",\"have\",\"a\",\"problem\"]," +
       //   "[\"China\",\"we\",\"have\",\"an\",\"ultimatum\"]" +
       "]";
@@ -59,7 +52,6 @@ public class JsonUtilTest {
     }
   }
 
-  @Test
   public void testGetListFromJsonArray() throws JSONException {
     Object[] firstArray = {"Houston", "we", "have", "a", "problem"};
     List<Object> firstList = Arrays.asList(firstArray);
@@ -84,7 +76,7 @@ public class JsonUtilTest {
       "[\"China\",\"we\",\"have\",\"an\",\"ultimatum\"]," +
       "9.5," +
       "true," +
-      "\"faLse\"" +
+      "\"faLse\"," +
       "]";
     List<Object> testList;
     testList = JsonUtil.getListFromJsonArray(new JSONArray(jsonInput));
@@ -93,20 +85,25 @@ public class JsonUtilTest {
     }
   }
 
-  @Test
   public void testGetListFromJsonObject() throws JSONException {
     String jsonInput = "{\"a\": 1, \"c\": [\"a\", \"b\", \"c\"], " +
         "\"b\": \"boo\", \"d\": {\"e\": \"f\"}}";
     JSONObject object = new JSONObject(jsonInput);
-    YailDictionary returnDict = JsonUtil.getDictionaryFromJsonObject(object);
-    assertNotNull(returnDict);
-    assertEquals(1, returnDict.get("a"));
-    assertEquals("boo", returnDict.get("b"));
-    assertEquals(YailList.makeList(Arrays.asList("a", "b", "c")), returnDict.get("c"));
-    assertEquals(YailDictionary.makeDictionary("e", "f"), returnDict.get("d"));
+
+    List<Object> returnList = JsonUtil.getListFromJsonObject(object);
+    List<Object> aList = Arrays.asList(new Object[] {"a", 1});
+    List<Object> bList = Arrays.asList(new Object[] {"b", "boo"});
+    List<Object> cList = Arrays.asList(new Object[] {"c",
+       Arrays.asList(new Object[] {"a", "b", "c"})});
+    List<Object> dList = Arrays.asList(new Object[] {"d",
+       Arrays.asList(new Object[] {Arrays.asList(new Object[] {"e", "f"})})});
+
+    assertEquals(returnList.get(0), aList);
+    assertEquals(returnList.get(1), bList);
+    assertEquals(returnList.get(2), cList);
+    assertEquals(returnList.get(3), dList);
   }
 
-  @Test
   public void testConvertBoolean() throws JSONException {
     assertEquals(true, JsonUtil.convertJsonItem("true"));
     assertEquals(true, JsonUtil.convertJsonItem(true));
@@ -116,7 +113,6 @@ public class JsonUtilTest {
     assertEquals(false, JsonUtil.convertJsonItem("faLse"));
   }
 
-  @Test
   public void testConvertNumber() throws JSONException {
     String jsonInput = "[9.5,-9.5,9,-9,123456789101112,0xF]";
     JSONArray array = new JSONArray(jsonInput);
@@ -125,10 +121,11 @@ public class JsonUtilTest {
     assertEquals(9, JsonUtil.convertJsonItem(array.get(2)));
     assertEquals(-9, JsonUtil.convertJsonItem(array.get(3)));
     assertEquals(123456789101112L, JsonUtil.convertJsonItem(array.get(4)));
-    assertEquals(15, JsonUtil.convertJsonItem(array.get(5)));
+//    assertEquals(15, JsonUtil.convertJsonItem(array.get(5)));
+//    The above line used to work before the JSON library was changed.
+    assertEquals("0xF", JsonUtil.convertJsonItem(array.get(5)));
   }
-
-  @Test
+  
   public void testConvertEmpty() throws JSONException {
     Object shouldBeEmpty = JsonUtil.getObjectFromJson("");
     assertEquals("", JsonUtil.getObjectFromJson(""));

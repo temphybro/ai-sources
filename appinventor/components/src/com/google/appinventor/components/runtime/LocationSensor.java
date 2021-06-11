@@ -39,21 +39,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Non-visible component providing location information, including {@link #Latitude()},
- * {@link #Longitude()}, {@link #Altitude()} (if supported by the device), speed (if supported by
- * the device), and address. This can also perform "geocoding", converting a given address (not
- * necessarily the current one) to a latitude (with the {@link #LatitudeFromAddress(String)}
- * method) and a longitude (with the {@link #LongitudeFromAddress(String)} method).
+ * Sensor that can provide information on longitude, latitude, and altitude.
  *
- * In order to function, the component must have its {@link #Enabled(boolean)} property set to
- * `true`{:.logic.block}, and the device must have location sensing enabled through wireless
- * networks or GPS satellites (if outdoors).
- *
- * Location information might not be immediately available when an app starts. You'll have to wait
- * a short time for a location provider to be found and used, or wait for the
- * {@link #LocationChanged(double, double, double, float)} event.
- *
- * The emulator does not emulate sensors on all devices. Code should be tested on a physical device.
  */
 @DesignerComponent(version = YaVersion.LOCATIONSENSOR_COMPONENT_VERSION,
     description = "Non-visible component providing location information, " +
@@ -68,7 +55,7 @@ import java.util.Set;
     "location sensing enabled through wireless networks or GPS " +
     "satellites (if outdoors).</p>\n" +
     "Location information might not be immediately available when an app starts.  You'll have to wait a short time for " +
-    "a location provider to be found and used, or wait for the LocationChanged event",
+    "a location provider to be found and used, or wait for the OnLocationChanged event",
     category = ComponentCategory.SENSORS,
     nonVisible = true,
     iconName = "images/locationSensor.png")
@@ -277,10 +264,9 @@ public class LocationSensor extends AndroidNonvisibleComponent
   // Events
 
   /**
-   * Indicates that a new location has been detected. Speed is reported in meters/second
-   * Other values match their properties.
+   * Indicates that a new location has been detected.
    */
-  @SimpleEvent(description = "Indicates that a new location has been detected.")
+  @SimpleEvent
   public void LocationChanged(double latitude, double longitude, double altitude, float speed) {
     EventDispatcher.dispatchEvent(this, "LocationChanged", latitude, longitude, altitude, speed);
   }
@@ -312,9 +298,6 @@ public class LocationSensor extends AndroidNonvisibleComponent
   }
 
   /**
-   * The current service provider. The provider will most likely be either GPS or network.
-   *
-   * @internaldoc
    * Change the location provider.
    * If the blocks program changes the name, try to change the provider.
    * Whatever happens now, the provider and the reported name may be switched to
@@ -336,14 +319,6 @@ public class LocationSensor extends AndroidNonvisibleComponent
   }
 
   /**
-   * The device will not change the service provider.
-   *
-   *   It is possible for a device to switch service providers when the current provider is unable
-   * to provide adequate location information. `ProviderLocked` is a Boolean value: true/false.
-   * Set to `true`{:.logic.block} to prevent providers from changing. Set to `false`{:.logic.block}
-   * to allow for automatic switching when necessary.
-   *
-   * @internaldoc
    * Indicates whether the sensor should allow the developer to
    * manually change the provider (GPS, GSM, Wifi, etc.)
    * from which location updates are received.
@@ -375,16 +350,6 @@ public class LocationSensor extends AndroidNonvisibleComponent
       }
   }
 
-  /**
-   * Determines the minimum time interval, in milliseconds, that the sensor will try to use for
-   * sending out location updates. However, location updates will only be received when the
-   * location of the phone actually changes, and use of the specified time interval is not
-   * guaranteed. For example, if 30000 is used as the time interval, location updates will never
-   * be fired sooner than 30000ms, but they may be fired anytime after.
-   *
-   *   Values smaller than 30000ms (30 seconds) are not practical for most devices. Small values
-   * may drain battery and overwork the GPS.
-   */
   @SimpleProperty(
       description = "Determines the minimum time interval, in milliseconds, that the sensor will try " +
           "to use for sending out location updates. However, location updates will only be received " +
@@ -418,16 +383,6 @@ public class LocationSensor extends AndroidNonvisibleComponent
       }
   }
 
-  /**
-   * Determines the minimum distance interval, in meters, that the sensor will try to use for
-   * sending out location updates. For example, if this is set to 50, then the sensor will fire a
-   * {@link #LocationChanged(double, double, double, float)} event only after 50 meters have been
-   * traversed. However, the sensor does not guarantee that an update will be received at exactly
-   * the distance interval. It may take more than 5 meters to fire an event, for instance.
-   *
-   *   It is also useful to check against {@link #Accuracy()} when using this property. When your
-   * device is moving, the accuracy of the detected location is constantly changing.
-   */
   @SimpleProperty(
       description = "Determines the minimum distance interval, in meters, that the sensor will try " +
       "to use for sending out location updates. For example, if this is set to 5, then the sensor will " +
@@ -440,8 +395,8 @@ public class LocationSensor extends AndroidNonvisibleComponent
   }
 
   /**
-   * If `true`{:.logic.block}, the device can report longitude and latitude.  It is
-   * always the case that either both or neither are.
+   * Indicates whether longitude and latitude information is available.  (It is
+   * always the case that either both or neither are.)
    */
   @SimpleProperty(category = PropertyCategory.BEHAVIOR)
   public boolean HasLongitudeLatitude() {
@@ -449,7 +404,7 @@ public class LocationSensor extends AndroidNonvisibleComponent
   }
 
   /**
-   * If `true`{:.logic.block}, the device can report its altitude.
+   * Indicates whether altitude information is available.
    */
   @SimpleProperty(category = PropertyCategory.BEHAVIOR)
   public boolean HasAltitude() {
@@ -457,7 +412,7 @@ public class LocationSensor extends AndroidNonvisibleComponent
   }
 
   /**
-   * If `true`{:.logic.block}, the device can report its accuracy level.
+   * Indicates whether information about location accuracy is available.
    */
   @SimpleProperty(category = PropertyCategory.BEHAVIOR)
   public boolean HasAccuracy() {
@@ -465,9 +420,8 @@ public class LocationSensor extends AndroidNonvisibleComponent
   }
 
   /**
-   * The most recent available longitude value in degrees reported to 5 decimal places.
-   * If no value is available, 0 will be returned.
-   * Longitude is a value between 180 (east) and -180 (west), where 0 marks the Prime Meridian.
+   * The most recent available longitude value.  If no value is available,
+   * 0 will be returned.
    */
   @SimpleProperty(category = PropertyCategory.BEHAVIOR)
   public double Longitude() {
@@ -475,9 +429,8 @@ public class LocationSensor extends AndroidNonvisibleComponent
   }
 
   /**
-   * The most recently available latitude value in degrees reported to 5 decimal places.
-   * If no value is available, 0 will be returned.
-   * Latitude is a value between 90 (north) and -90 (south), where 0 marks the Equator.
+   * The most recently available latitude value.  If no value is available,
+   * 0 will be returned.
    */
   @SimpleProperty(category = PropertyCategory.BEHAVIOR)
   public double Latitude() {
@@ -485,35 +438,19 @@ public class LocationSensor extends AndroidNonvisibleComponent
   }
 
   /**
-   * Altitude of the device measured in meters, if available.
-   *
-   *   Altitude is measured from the
-   * [World Geodetic System 84 reference ellipsoid](https://gisgeography.com/wgs84-world-geodetic-system/),
-   * not sea level.
-   *
-   *   Note that it is difficult for devices to accurately sense altitude. Altitude reported on a
-   * phone/tablet can easily be off by 30 meters or more.
+   * The most recently available altitude value, in meters.  If no value is
+   * available, 0 will be returned.
    */
-  @SimpleProperty(category = PropertyCategory.BEHAVIOR,
-      description = "The most recently available altitude value, in meters.  If no value is "
-          + "available, 0 will be returned.")
+  @SimpleProperty(category = PropertyCategory.BEHAVIOR)
   public double Altitude() {
     return altitude;
   }
 
   /**
-   * The `LocationSensor` will be able to locate the device with a varying degree of confidence,
-   * based on the quality of satellite, cell towers, and other data used to estimate location.
-   * The `Accuracy` value is the radius in meters around the sensor's detected location. The device
-   * has a 68% chance to be located within this radius. More precise location detection will result
-   * in a smaller accuracy number, which allows the app to have more confidence where the device
-   * is actually located.
-   *
-   *   If the accuracy is not known, the return value is 0.0
+   * The most recent measure of accuracy, in meters.  If no value is available,
+   * 0 will be returned.
    */
-  @SimpleProperty(category = PropertyCategory.BEHAVIOR,
-      description = "The most recent measure of accuracy, in meters.  If no value is available, "
-          + "0 will be returned.")
+  @SimpleProperty(category = PropertyCategory.BEHAVIOR)
   public double Accuracy() {
     if (lastLocation != null && lastLocation.hasAccuracy()) {
       return lastLocation.getAccuracy();
@@ -534,10 +471,8 @@ public class LocationSensor extends AndroidNonvisibleComponent
   }
 
   /**
-   * If `true`{:.logic.block}, the `LocationSensor` will attempt to read location information from
-   * GPS, WiFi location, or other means available on the device. This setting does not control
-   * whether location information is actually available. Device location must be enabled or
-   * disabled in the device settings.
+   * Indicates whether the sensor should listen for location chagnes
+   * and raise the corresponding events.
    */
   @DesignerProperty(editorType = PropertyTypeConstants.PROPERTY_TYPE_BOOLEAN,
       defaultValue = "True")
@@ -555,17 +490,10 @@ public class LocationSensor extends AndroidNonvisibleComponent
   }
 
   /**
-   * Physical street address of the device from Google's map database.
-   *
-   *   The address might not always be available from the provider, and the address reported may not
-   * always be of the building where the device is located.
-   *
-   *   If Google has no address information available for a particular location, this will return
-   * `No address available`.
+   * Provides a textual representation of the current address or
+   * "No address available".
    */
-  @SimpleProperty(category = PropertyCategory.BEHAVIOR,
-      description = "Provides a textual representation of the current address or \"No address "
-          + "available\".")
+  @SimpleProperty(category = PropertyCategory.BEHAVIOR)
   public String CurrentAddress() {
     if (hasLocationData &&
         latitude <= 90 && latitude >= -90 &&
@@ -603,7 +531,7 @@ public class LocationSensor extends AndroidNonvisibleComponent
   }
 
   /**
-   * Derives latitude from the given `locationName`.
+   * Derives Latitude from Address
    *
    * @param locationName  human-readable address
    *
@@ -626,8 +554,7 @@ public class LocationSensor extends AndroidNonvisibleComponent
   }
 
   /**
-   * Derives longitude from the given `locationName`.
-   *
+   * Derives Longitude from Address
    * @param locationName  human-readable address
    *
    * @return longitude in degrees, 0 if not found.
@@ -648,10 +575,6 @@ public class LocationSensor extends AndroidNonvisibleComponent
     }
   }
 
-  /**
-   * List of available service providers, such as gps or network. This information is provided
-   * as a list and in text form.
-   */
   @SimpleProperty(category = PropertyCategory.BEHAVIOR)
   public List<String> AvailableProviders () {
     return allProviders;

@@ -28,25 +28,7 @@ import android.content.SharedPreferences;
 import org.json.JSONException;
 
 /**
- * `TinyDB` is a non-visible component that stores data for an app.
- *
- * Apps created with App Inventor are initialized each time they run. This means that if an app
- * sets the value of a variable and the user then quits the app, the value of that variable will
- * not be remembered the next time the app is run. In contrast, TinyDB is a persistent data store
- * for the app. The data stored in a `TinyDB` will be available each time the app is run. An
- * example might be a game that saves the high score and retrieves it each time the game is played.
- *
- * Data items consist of tags and values. To store a data item, you specify the tag it should be
- * stored under. The tag must be a text block, giving the data a name. Subsequently, you can
- * retrieve the data that was stored under a given tag.
- *
- * You cannot use the `TinyDB` to pass data between two different apps on the phone, although you
- * can use the `TinyDB` to share data between the different screens of a multi-screen app.
- *
- * When you are developing apps using the AI Companion, all the apps using that Companion will
- * share the same `TinyDB`. That sharing will disappear once the apps are packaged and installed on
- * the phone. During development you should be careful to clear the Companion app's data each time
- * you start working on a new app.
+ * Persistently store YAIL values on the phone using tags to store and retrieve.
  *
  * @author markf@google.com (Mark Friedman)
  */
@@ -98,17 +80,6 @@ public class TinyDB extends AndroidNonvisibleComponent implements Component, Del
     Namespace(DEFAULT_NAMESPACE);
   }
 
-  /**
-   * Namespace for storing data. All `TinyDB` components in the same app with the same `Namespace`
-   * property access the same data.
-   *
-   *   Each `Namespace` represents a single data store that is shared by the entire app. If you
-   * have multiple `TinyDB` components with the same `Namespace` within an app, they use the same
-   * data store, even if they are on different screens. If you only need one data store for your
-   * app, it's not necessary to set a `Namespace`.
-   *
-   * @param namespace the alternate namespace to use for the TinyDB
-   */
   @SimpleProperty(description = "Namespace for storing data.", category = PropertyCategory.BEHAVIOR)
   @DesignerProperty(editorType = PropertyTypeConstants.PROPERTY_TYPE_STRING, defaultValue = DEFAULT_NAMESPACE)
   public void Namespace(String namespace) {
@@ -122,15 +93,14 @@ public class TinyDB extends AndroidNonvisibleComponent implements Component, Del
   }
 
   /**
-   * Store the given `valueToStore`{:.variable.block} under the given `tag`{:.text.block}.
-   * The storage persists on the phone when the app is restarted.
+   * Store the given value under the given tag.  The storage persists on the
+   * phone when the app is restarted.
    *
    * @param tag The tag to use
    * @param valueToStore The value to store. Can be any type of value (e.g.
    * number, text, boolean or list).
    */
-  @SimpleFunction(description = "Store the given value under the given tag.  The storage persists "
-      + "on the phone when the app is restarted.")
+  @SimpleFunction
   public void StoreValue(final String tag, final Object valueToStore) {
     final SharedPreferences.Editor sharedPrefsEditor = sharedPreferences.edit();
     try {
@@ -142,33 +112,32 @@ public class TinyDB extends AndroidNonvisibleComponent implements Component, Del
   }
 
   /**
-   * Retrieve the value stored under the given `tag`{:.text.block}.  If there's no such tag, then
-   * return `valueIfTagNotThere`{:.variable.block}.
+   * Retrieve the value stored under the given tag.  If there's no such tag, then return valueIfTagNotThere.
    *
    * @param tag The tag to use
    * @param valueIfTagNotThere The value returned if tag in not in TinyDB
    * @return The value stored under the tag. Can be any type of value (e.g.
    * number, text, boolean or list).
    */
-  @SimpleFunction(description = "Retrieve the value stored under the given tag. If there's no "
-      + "such tag, then return valueIfTagNotThere.")
+  @SimpleFunction
   public Object GetValue(final String tag, final Object valueIfTagNotThere) {
     try {
       String value = sharedPreferences.getString(tag, "");
       // If there's no entry with tag as a key then return the empty string.
       //    was  return (value.length() == 0) ? "" : JsonUtil.getObjectFromJson(value);
-      return (value.length() == 0) ? valueIfTagNotThere : JsonUtil.getObjectFromJson(value, true);
+      return (value.length() == 0) ? valueIfTagNotThere : JsonUtil.getObjectFromJson(value);
     } catch (JSONException e) {
       throw new YailRuntimeError("Value failed to convert from JSON.", "JSON Creation Error.");
     }
   }
 
    /**
-   * Return a list of all the tags in the data store.
+   * Return a list of all the tags in the data store
    *
+   * @param
    * @return a list of all keys.
    */
-  @SimpleFunction(description = "Return a list of all the tags in the data store.")
+  @SimpleFunction
   public Object GetTags() {
     List<String> keyList = new ArrayList<String>();
     Map<String,?> keyValues = sharedPreferences.getAll();
@@ -179,10 +148,10 @@ public class TinyDB extends AndroidNonvisibleComponent implements Component, Del
   }
 
   /**
-   * Clear the entire data store.
+   * Clear the entire data store
    *
    */
-  @SimpleFunction(description = "Clear the entire data store.")
+  @SimpleFunction
   public void ClearAll() {
     final SharedPreferences.Editor sharedPrefsEditor = sharedPreferences.edit();
     sharedPrefsEditor.clear();
@@ -190,11 +159,11 @@ public class TinyDB extends AndroidNonvisibleComponent implements Component, Del
   }
 
   /**
-   * Clear the entry with the given `tag`{:.text.block}.
+   * Clear the entry with the given tag
    *
    * @param tag The tag to remove.
    */
-  @SimpleFunction(description = "Clear the entry with the given tag.")
+  @SimpleFunction
   public void ClearTag(final String tag) {
     final SharedPreferences.Editor sharedPrefsEditor = sharedPreferences.edit();
     sharedPrefsEditor.remove(tag);

@@ -157,11 +157,15 @@ public class ListPickerActivity extends AppInventorCompatActivity implements Ada
   }
 
   // Capture the hardware back button to make sure the screen animation
-  // still applies.
+  // still applies. (In API level 5, we can override onBackPressed instead)
   @Override
-  public void onBackPressed() {
-    AnimationUtil.ApplyCloseScreenAnimation(this, closeAnim);
-    super.onBackPressed();
+  public boolean onKeyDown(int keyCode, KeyEvent event) {
+    if (keyCode == KeyEvent.KEYCODE_BACK) {
+      boolean handled = super.onKeyDown(keyCode, event);
+      AnimationUtil.ApplyCloseScreenAnimation(this, closeAnim);
+      return handled;
+    }
+    return super.onKeyDown(keyCode, event);
   }
 
 

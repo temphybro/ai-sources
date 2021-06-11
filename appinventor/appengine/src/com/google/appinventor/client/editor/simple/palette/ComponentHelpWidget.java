@@ -108,13 +108,6 @@ public final class ComponentHelpWidget extends AbstractPaletteItemWidget {
         link.setStyleName("ode-ComponentHelpPopup-Link");
         inner.add(link);
       }
-      if (scd.getExternal() && !"".equals(scd.getLicense())) {
-        String license = scd.getLicense();
-        HTML viewLicenseHTML = new HTML("<a href=\"" + license + "\" target=\"_blank\">" +
-            MESSAGES.viewLicense() + "</a>");
-        viewLicenseHTML.setStyleName("ode-ComponentHelpPopup-Link");
-        inner.add(viewLicenseHTML);
-      }
 
       setWidget(inner);
 

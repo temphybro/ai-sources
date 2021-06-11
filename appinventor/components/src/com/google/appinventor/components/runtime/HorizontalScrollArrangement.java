@@ -12,12 +12,7 @@ import com.google.appinventor.components.common.ComponentConstants;
 import com.google.appinventor.components.common.YaVersion;
 
 /**
- * A formatting element in which to place components that should be displayed from left to right.
- * If you wish to have components displayed one over another, use {@link VerticalScrollArrangement}
- * instead.
- *
- * This version is scrollable.
- *
+ * A horizontal arrangement of components
  * @author sharon@google.com (Sharon Perl)
  * @author jis@mit.edu (Jeffrey I. Schiller)
  *

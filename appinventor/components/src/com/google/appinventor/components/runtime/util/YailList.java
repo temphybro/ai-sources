@@ -7,14 +7,17 @@
 package com.google.appinventor.components.runtime.util;
 
 import com.google.appinventor.components.runtime.errors.YailRuntimeError;
+
 import gnu.lists.LList;
 import gnu.lists.Pair;
 import gnu.math.IntNum;
-import java.util.ArrayList;
+
+import org.json.JSONException;
+
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
-import org.json.JSONException;
+
+import android.util.Log;
 
 /**
  * The YailList is a wrapper around the gnu.list.Pair class used
@@ -22,8 +25,9 @@ import org.json.JSONException;
  * by App Inventor components.
  *
  */
-@SuppressWarnings("rawtypes")
-public class YailList extends Pair implements YailObject {
+public class YailList extends Pair {
+
+  private static final String LOG_TAG = "YailList";
 
   // Component writers take note!
   // If you want to pass back a list to the blocks language, the
@@ -73,20 +77,7 @@ public class YailList extends Pair implements YailObject {
    * Create a YailList from a Collection.
    */
   public static YailList makeList(Collection vals) {
-    List valsList = new ArrayList(vals);
-
-    LList newCdr = Pair.makeList(valsList);
-    return new YailList(newCdr);
-  }
-
-  /**
-   * Create a YailList from a Set.
-   */
-  public static YailList makeList(Set vals) {
-    // LList newCdr = Pair.makeList(vals.toArray(new Object[vals.size()]), 0);
-    List valsList = new ArrayList(vals);
-
-    LList newCdr = Pair.makeList(valsList);
+    LList newCdr = Pair.makeList(vals.toArray(), 0);
     return new YailList(newCdr);
   }
 

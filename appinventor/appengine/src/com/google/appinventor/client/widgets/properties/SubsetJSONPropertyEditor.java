@@ -14,7 +14,6 @@ import com.google.appinventor.client.explorer.project.Project;
 import com.google.appinventor.client.explorer.project.ProjectChangeListener;
 import com.google.appinventor.client.widgets.DropDownButton;
 import com.google.appinventor.client.youngandroid.TextValidators;
-import com.google.appinventor.common.utils.StringUtils;
 import com.google.appinventor.components.common.ComponentCategory;
 import com.google.appinventor.shared.rpc.project.ProjectNode;
 import com.google.appinventor.shared.simple.ComponentDatabaseInterface;
@@ -90,13 +89,13 @@ public class SubsetJSONPropertyEditor  extends PropertyEditor
     invisibleFilePanel.show();
 
     List<DropDownButton.DropDownItem> items = Lists.newArrayList();
-    items.add(new DropDownButton.DropDownItem("Subset Property Editor", MESSAGES.allButton(), new Command() {
+    items.add(new DropDownButton.DropDownItem("Subset Property Editor", "All", new Command() {
       @Override
       public void execute() {
         property.setValue("");
         updateValue();
       }}));
-    items.add(new DropDownButton.DropDownItem("Subset Property Editor", MESSAGES.matchProjectButton(), new Command() {
+    items.add(new DropDownButton.DropDownItem("Subset Property Editor", "Match Project", new Command() {
       @Override
       public void execute() {
         matchProject();
@@ -109,7 +108,7 @@ public class SubsetJSONPropertyEditor  extends PropertyEditor
         file.click();
       }}));
 
-    items.add(new DropDownButton.DropDownItem("Subset Property Editor", MESSAGES.viewAndModifyButton(), new Command() {
+    items.add(new DropDownButton.DropDownItem("Subset Property Editor", "View and Modify", new Command() {
       @Override
       public void execute() {
         showCustomSubsetPanel();
@@ -143,7 +142,7 @@ public class SubsetJSONPropertyEditor  extends PropertyEditor
       blockPanel.add(new Label(MESSAGES.builtinBlocksLabel()));
       blockPanel.add(blockTree);
 
-      Button loadButton = new Button(MESSAGES.fileUploadWizardCaption());
+      Button loadButton = new Button(MESSAGES.fileUploadWizardCaption()); // TODO: Need to internationalize
       loadButton.addClickHandler(new ClickHandler() {
         @Override
         public void onClick(ClickEvent event) {
@@ -158,7 +157,7 @@ public class SubsetJSONPropertyEditor  extends PropertyEditor
         }
       });
       Button clearButton = new Button(MESSAGES.clearButton());
-      Button initializeButton = new Button(MESSAGES.matchProjectButton());
+      Button initializeButton = new Button("Match Project"); // TODO: Internationalize
       clearButton.addClickHandler(new ClickHandler() {
         @Override
         public void onClick(ClickEvent event) {
@@ -331,13 +330,13 @@ public class SubsetJSONPropertyEditor  extends PropertyEditor
               for (int k = 0; k < jsonComponentBlockProps.size(); ++k) {
                 JSONObject jsonComponentBlockType = jsonComponentBlockProps.get(k).isObject();
                 String componentBlockType = jsonComponentBlockType.get("type").isString().stringValue();
-                if ("component_set_get".equals(componentBlockType)) {
+                if (componentBlockType == "component_set_get") {
                   componentPropHash.put(jsonComponentBlockType.get("mutatorNameToValue").isObject().get("property_name").isString().stringValue(), "PROP");
-                } else if ("component_event".equals(componentBlockType)) {
+                } else if (componentBlockType == "component_event") {
                   JSONValue mutatorValue = jsonComponentBlockType.get("mutatorNameToValue");
                   JSONValue event_name = mutatorValue.isObject().get("event_name");
                   componentPropHash.put(event_name.isString().stringValue(), "EVENT");
-                } else if ("component_method".equals(componentBlockType)) {
+                } else if (componentBlockType == "component_method") {
                   componentPropHash.put(jsonComponentBlockType.get("mutatorNameToValue").isObject().get("method_name").isString().stringValue(), "METHOD");
                 }
               }
@@ -592,7 +591,7 @@ public class SubsetJSONPropertyEditor  extends PropertyEditor
   }
 
   protected void updateValue() {
-    if (StringUtils.isNullOrEmpty(property.getValue())) {
+    if (property.getValue() == "") {
       dropDownButton.setCaption("All");
       dropDownButton.setWidth("");
     } else {

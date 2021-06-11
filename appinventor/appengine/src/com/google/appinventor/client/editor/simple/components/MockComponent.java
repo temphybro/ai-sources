@@ -12,6 +12,7 @@ import com.google.appinventor.client.editor.simple.SimpleComponentDatabase;
 import com.google.appinventor.client.ComponentsTranslation;
 import com.google.appinventor.client.Images;
 import com.google.appinventor.client.Ode;
+import com.google.appinventor.client.editor.ProjectEditor;
 import com.google.appinventor.client.editor.simple.SimpleEditor;
 import com.google.appinventor.client.editor.simple.components.utils.PropertiesUtil;
 import com.google.appinventor.client.editor.youngandroid.YaBlocksEditor;
@@ -34,8 +35,8 @@ import com.google.appinventor.shared.rpc.project.HasAssetsFolder;
 import com.google.appinventor.shared.rpc.project.ProjectNode;
 import com.google.appinventor.shared.rpc.project.youngandroid.YoungAndroidAssetsFolder;
 import com.google.appinventor.shared.rpc.project.youngandroid.YoungAndroidProjectNode;
+import com.google.appinventor.shared.settings.SettingsConstants;
 import com.google.appinventor.shared.storage.StorageUtil;
-import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.DomEvent;
@@ -53,7 +54,6 @@ import com.google.gwt.event.dom.client.TouchMoveEvent;
 import com.google.gwt.event.dom.client.TouchStartEvent;
 import com.google.gwt.event.shared.HandlerManager;
 import com.google.gwt.event.shared.HandlerRegistration;
-import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.DeferredCommand;
@@ -78,6 +78,7 @@ import com.google.appinventor.shared.simple.ComponentDatabaseInterface.Component
 import com.google.appinventor.shared.simple.ComponentDatabaseInterface.PropertyDefinition;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -92,14 +93,13 @@ import java.util.Map;
  * @author lizlooney@google.com (Liz Looney)
  */
 public abstract class MockComponent extends Composite implements PropertyChangeListener,
-    SourcesMouseEvents, DragSource, HasAllTouchHandlers, DesignPreviewChangeListener {
+    SourcesMouseEvents, DragSource, HasAllTouchHandlers {
   // Common property names (not all components support all properties).
   public static final String PROPERTY_NAME_NAME = "Name";
   public static final String PROPERTY_NAME_UUID = "Uuid";
   private static final int ICON_IMAGE_WIDTH = 16;
   private static final int ICON_IMAGE_HEIGHT = 16;
   public static final int BORDER_SIZE = 2 + 2; // see ode-SimpleMockComponent in Ya.css
-  public String currentPreview;
 
   /**
    * This class defines the dialog box for renaming a component.
@@ -327,7 +327,7 @@ public abstract class MockComponent extends Composite implements PropertyChangeL
 
     sourceStructureExplorerItem = new SourceStructureExplorerItem() {
       @Override
-      public void onSelected(NativeEvent source) {
+      public void onSelected() {
         // are we showing the blocks editor? if so, toggle the component drawer
         if (Ode.getInstance().getCurrentFileEditor() instanceof YaBlocksEditor) {
           YaBlocksEditor blocksEditor =
@@ -335,7 +335,7 @@ public abstract class MockComponent extends Composite implements PropertyChangeL
           OdeLog.log("Showing item " + getName());
           blocksEditor.showComponentBlocks(getName());
         } else {
-          select(source);
+          select();
         }
       }
 
@@ -414,7 +414,7 @@ public abstract class MockComponent extends Composite implements PropertyChangeL
     // TODO(user): Ensure this value is unique within the project using a list of
     // already used UUIDs
     // Set the component's UUID
-    // The default value here can be anything except 0, because YoungAndroidProjectService
+    // The default value here can be anything except 0, because YoungAndroidProjectServce
     // creates forms with an initial Uuid of 0, and Properties.java doesn't encode
     // default values when it generates JSON for a component.
     addProperty(PROPERTY_NAME_UUID, "-1", null, new TextPropertyEditor());
@@ -440,7 +440,7 @@ public abstract class MockComponent extends Composite implements PropertyChangeL
 
   protected boolean isPropertyforYail(String propertyName) {
     // By default we use the same criterion as persistance
-    // This method can then be overridden by the individual
+    // This method can then be overriden by the invididual
     // component Mocks
     return isPropertyPersisted(propertyName);
   }
@@ -522,33 +522,7 @@ public abstract class MockComponent extends Composite implements PropertyChangeL
     if (isPropertyforYail(name)) {
       type |= EditableProperty.TYPE_DOYAIL;
     }
-    properties.addProperty(name, defaultValue, caption, editor, type, "", null);
-  }
-
-  /**
-   * Adds a new property for the component.
-   *
-   * @param name  property name
-   * @param defaultValue  default value of property
-   * @param caption  property's caption for use in the ui
-   * @param editorType  editor type for the property
-   * @param editorArgs  additional editor arguments
-   * @param editor  property editor
-   */
-  public final void addProperty(String name, String defaultValue, String caption,
-      String editorType, String[] editorArgs, PropertyEditor editor) {
-
-    int type = EditableProperty.TYPE_NORMAL;
-    if (!isPropertyPersisted(name)) {
-      type |= EditableProperty.TYPE_NONPERSISTED;
-    }
-    if (!isPropertyVisible(name)) {
-      type |= EditableProperty.TYPE_INVISIBLE;
-    }
-    if (isPropertyforYail(name)) {
-      type |= EditableProperty.TYPE_DOYAIL;
-    }
-    properties.addProperty(name, defaultValue, caption, editor, type, editorType, editorArgs);
+    properties.addProperty(name, defaultValue, caption, editor, type);
   }
 
   /**
@@ -590,16 +564,6 @@ public abstract class MockComponent extends Composite implements PropertyChangeL
    */
   public void changeProperty(String name, String value) {
     properties.changePropertyValue(name, value);
-  }
-
-  /**
-   * Renames the component to {@code newName}.
-   * @param newName The new name for the component.
-   */
-  public void rename(String newName) {
-    String oldName = getPropertyValue(PROPERTY_NAME_NAME);
-    properties.changePropertyValue(PROPERTY_NAME_NAME, newName);
-    getForm().fireComponentRenamed(this, oldName);
   }
 
   /**
@@ -690,8 +654,8 @@ public abstract class MockComponent extends Composite implements PropertyChangeL
   /**
    * Selects this component in the visual editor.
    */
-  public final void select(NativeEvent event) {
-    getForm().setSelectedComponent(this, event);
+  public final void select() {
+    getForm().setSelectedComponent(this);
   }
 
   /**
@@ -715,7 +679,7 @@ public abstract class MockComponent extends Composite implements PropertyChangeL
    * Returns whether this component is selected.
    */
   public boolean isSelected() {
-    return (getForm().getSelectedComponents() == this);
+    return (getForm().getSelectedComponent() == this);
   }
 
   /**
@@ -764,7 +728,7 @@ public abstract class MockComponent extends Composite implements PropertyChangeL
    *
    * @param container  owning component container for this component
    */
-  protected void setContainer(MockContainer container) {
+  protected final void setContainer(MockContainer container) {
     this.container = container;
   }
 
@@ -773,7 +737,7 @@ public abstract class MockComponent extends Composite implements PropertyChangeL
    *
    * @return  owning component container for this component
    */
-  public final MockContainer getContainer() {
+  protected final MockContainer getContainer() {
     return container;
   }
 
@@ -811,7 +775,7 @@ public abstract class MockComponent extends Composite implements PropertyChangeL
     // used to get HTML for the iconImage. AbstractImagePrototype requires
     // an ImageResource, which we don't necessarily have.
     TreeItem itemNode = new TreeItem(
-        new HTML("<span>" + iconImage.getElement().getString() + SafeHtmlUtils.htmlEscapeAllowEntities(getName()) + "</span>")) {
+        new HTML("<span>" + iconImage.getElement().getString() + getName() + "</span>")) {
       @Override
       protected Focusable getFocusable() {
         return nullFocusable;
@@ -903,7 +867,7 @@ public abstract class MockComponent extends Composite implements PropertyChangeL
       case Event.ONTOUCHSTART:
       case Event.ONTOUCHEND:
         if (isForm()) {
-          select(event);
+          select();
         }
       case Event.ONTOUCHMOVE:
       case Event.ONTOUCHCANCEL:
@@ -922,7 +886,7 @@ public abstract class MockComponent extends Composite implements PropertyChangeL
 
       case Event.ONCLICK:
         cancelBrowserEvent(event);
-        select(event);
+        select();
         break;
 
       default:
@@ -1104,12 +1068,6 @@ public abstract class MockComponent extends Composite implements PropertyChangeL
     }
   }
 
-  // Null onDesignPreviewChange implementation
-
-  @Override
-  public void onDesignPreviewChanged() {
-  }
-
   // PropertyChangeListener implementation
 
   @Override
@@ -1136,7 +1094,7 @@ public abstract class MockComponent extends Composite implements PropertyChangeL
 
   public void delete() {
     this.editor.getProjectEditor().clearLocation(getName());
-    getForm().select(null);
+    getForm().select();
     // Pass true to indicate that the component is being permanently deleted.
     getContainer().removeComponent(this, true);
     // tell the component its been removed, so it can remove children's blocks
@@ -1184,13 +1142,13 @@ public abstract class MockComponent extends Composite implements PropertyChangeL
       String oldType = "";
       String newType = "";
       for (PropertyDefinition prop : newProperties) {
-        if (prop.getName().equals(property.getName())) {
+        if (prop.getName() == property.getName()) {
           presentInNewProperties = true;
           newType = prop.getEditorType();
         }
       }
       for (PropertyDefinition prop : oldProperties) {
-        if (prop.getName().equals(property.getName())) {
+        if (prop.getName() == property.getName()) {
           presentInOldProperties = true;
           oldType = prop.getEditorType();
         }
@@ -1224,7 +1182,7 @@ public abstract class MockComponent extends Composite implements PropertyChangeL
     for (PropertyDefinition property : newProperties) {
       if (toBeAdded.contains(property.getName())) {
         PropertyEditor propertyEditor = PropertiesUtil.createPropertyEditor(property.getEditorType(), property.getDefaultValue(), (YaFormEditor) editor, property.getEditorArgs());
-        addProperty(property.getName(), property.getDefaultValue(), property.getCaption(), property.getEditorType(), property.getEditorArgs(), propertyEditor);
+        addProperty(property.getName(), property.getDefaultValue(), property.getCaption(), propertyEditor);
       }
     }
 

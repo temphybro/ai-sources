@@ -28,8 +28,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * Use the `BluetoothServer` component to turn your device into a server that receive connections
- * from other apps that use the `BluetoothClient` component.
+ * BluetoothServer component
  *
  * @author lizlooney@google.com (Liz Looney)
  */
@@ -59,7 +58,7 @@ public final class BluetoothServer extends BluetoothConnectionBase {
   }
 
   /**
-   * Accept an incoming connection with the Serial Port Profile (SPP).
+   * Accept an incoming connection.
    */
   @SimpleFunction(description = "Accept an incoming connection with the Serial Port " +
       "Profile (SPP).")

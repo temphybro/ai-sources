@@ -1,5 +1,5 @@
 // -*- mode: java; c-basic-offset: 2; -*-
-// Copyright 2011-2020 MIT, All rights reserved
+// Copyright 2011-2018 MIT, All rights reserved
 // Released under the Apache License, Version 2.0
 // http://www.apache.org/licenses/LICENSE-2.0
 
@@ -145,7 +145,7 @@ public class PhoneStatus extends AndroidNonvisibleComponent implements Component
       if (!firstSeed.equals(seed)) {
         // Attempting to use a different seed (code)
         // Provide a warning dialog box
-        Notifier.oneButtonAlert(form,
+        Notifier.oneButtonAlert(Form.getActiveForm(),
           "You cannot use two codes with one start up of the Companion. You should restart the " +
           "Companion and try again.",
           "Warning", "OK", new Runnable() {
@@ -153,7 +153,7 @@ public class PhoneStatus extends AndroidNonvisibleComponent implements Component
                 // We are going to die here, so the user has to start a new copy. This isn't ideal. A more
                 // correct solution would be to gracefully shutdown the connection process and restart it with
                 // the new seed.
-                form.finish();
+                Form.getActiveForm().finish();
                 System.exit(0);         // Truly ugly...
               }
             });
@@ -211,9 +211,6 @@ public class PhoneStatus extends AndroidNonvisibleComponent implements Component
 
   @SimpleFunction(description = "Start the WebRTC engine")
   public void startWebRTC(String rendezvousServer, String iceServers) {
-    if (!useWebRTC) {
-      return;
-    }
     WebRTCNativeMgr webRTCNativeMgr = new WebRTCNativeMgr(rendezvousServer, iceServers);
     webRTCNativeMgr.initiate((ReplForm) form, (Context)activity, firstSeed);
     ((ReplForm)form).setWebRTCMgr(webRTCNativeMgr);
@@ -221,9 +218,7 @@ public class PhoneStatus extends AndroidNonvisibleComponent implements Component
 
   @SimpleFunction(description = "Start the internal AppInvHTTPD to listen for incoming forms. FOR REPL USE ONLY!")
   public void startHTTPD(boolean secure) {
-    if (form.isRepl()) {
-      ((ReplForm) form).startHTTPD(secure);
-    }
+    ReplForm.topform.startHTTPD(secure);
   }
 
   @SimpleFunction(description = "Declare that we have loaded our initial assets and other assets should come from the sdcard")
@@ -349,7 +344,7 @@ public class PhoneStatus extends AndroidNonvisibleComponent implements Component
 
   @SimpleFunction(description = "Return the ACRA Installation ID")
   public String InstallationId() {
-    return org.acra.util.Installation.id(form);
+    return org.acra.util.Installation.id(Form.getActiveForm());
   }
 
   /* Static context way to get the useWebRTC flag */

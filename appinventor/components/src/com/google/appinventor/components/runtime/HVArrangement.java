@@ -227,9 +227,7 @@ public class HVArrangement extends AndroidViewComponent implements Component, Co
   }
 
   /**
-   * A number that encodes how contents of the `%type%` are aligned horizontally. The choices
-   * are: `1` = left aligned, `2` = right aligned, `3` = horizontally centered. Alignment has no
-   * effect if the `%type%`'s {@link #Width()} is `Automatic`.
+   * Sets the horizontal alignment for contents of the arrangement
    *
    * @param alignment
    */
@@ -264,9 +262,7 @@ public class HVArrangement extends AndroidViewComponent implements Component, Co
   }
 
   /**
-   * A number that encodes how the contents of the `%type%` are aligned vertically. The choices
-   * are: `1` = aligned at the top, `2` = aligned at the bottom, `3` = vertically centered.
-   * Alignment has no effect if the `%type%`'s {@link #Height()} is `Automatic`.
+   * Sets the vertical alignment for contents of the arrangement
    *
    * @param alignment
    */
@@ -299,11 +295,9 @@ public class HVArrangement extends AndroidViewComponent implements Component, Co
 
     /**
      * Specifies the background color of the %type% as an alpha-red-green-blue
-     * integer.  If an Image has been set, the color change will not be visible
-     * until the Image is removed.
-     *
-     * @internaldoc
-     * If the parameter is {@link Component#COLOR_DEFAULT}, the original beveling is restored.
+     * integer.  If the parameter is {@link Component#COLOR_DEFAULT}, the
+     * original beveling is restored.  If an Image has been set, the color
+     * change will not be visible until the Image is removed.
      *
      * @param argb background RGB color with alpha
      */
@@ -319,7 +313,7 @@ public class HVArrangement extends AndroidViewComponent implements Component, Co
     }
 
     /**
-     * Returns the path of the background image of the `%type%`.
+     * Returns the path of the background image of the %type%.
      *
      * @return  the path of the background image
      */
@@ -330,9 +324,8 @@ public class HVArrangement extends AndroidViewComponent implements Component, Co
     }
 
     /**
-     * Specifies the path of the background image of the `%type%`.
+     * Specifies the path of the background image of the %type%.
      *
-     * @internaldoc
      * <p/>See {@link com.google.appinventor.components.runtime.util.MediaUtil#determineMediaSource} for information about what
      * a path can be.
      *

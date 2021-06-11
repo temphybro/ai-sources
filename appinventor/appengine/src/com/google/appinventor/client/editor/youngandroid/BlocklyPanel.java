@@ -6,16 +6,14 @@
 
 package com.google.appinventor.client.editor.youngandroid;
 
-import static com.google.appinventor.client.Ode.MESSAGES;
-
 import com.google.appinventor.client.ComponentsTranslation;
 import com.google.appinventor.client.ConnectProgressBar;
 import com.google.appinventor.client.DesignToolbar;
 import com.google.appinventor.client.ErrorReporter;
 import com.google.appinventor.client.Ode;
 import com.google.appinventor.client.TopToolbar;
-import com.google.appinventor.client.editor.youngandroid.i18n.BlocklyMsg;
 import com.google.appinventor.client.output.OdeLog;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.appinventor.client.settings.user.BlocksSettings;
 import com.google.appinventor.components.common.YaVersion;
 import com.google.appinventor.shared.settings.SettingsConstants;
@@ -27,17 +25,21 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.i18n.client.LocaleInfo;
+
 import com.google.gwt.query.client.builders.JsniBundle;
-import com.google.gwt.user.client.rpc.AsyncCallback;
+
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
+
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+
+import static com.google.appinventor.client.Ode.MESSAGES;
 
 /**
  * Blocks editor panel.
@@ -50,31 +52,29 @@ import java.util.Set;
  */
 public class BlocklyPanel extends HTMLPanel {
 
-  public interface BlocklySource extends JsniBundle {
-    @LibrarySource(value = "blockly.js",
-                   prepend = "(function(window, document, console, _translations){\n"
-                       + "this.goog = goog = top.goog;\n",
-                   postpend = "\n}.apply(window, [$wnd, $doc, $wnd.console, ai2translations]));\n"
-                       + "for(var ns in window.goog.implicitNamespaces_) {\n"
-                       + "  if(ns.indexOf('.') !== false) ns = ns.split('.')[0];\n"
-                       + "  top[ns] = window.goog.global[ns];\n"
-                       + "}\nwindow['Blockly'] = top['Blockly'];\nwindow['AI'] = top['AI'];")
-    void initBlockly(JavaScriptObject ai2translations);
+  public static interface BlocklySource extends JsniBundle {
+    @LibrarySource(value="blockly.js",
+                   prepend="(function(window, document, console){\nthis.goog = goog = top.goog;\n",
+                   postpend="\n}.apply(window, [$wnd, $doc, $wnd.console]));\n" +
+                   "for(var ns in window.goog.implicitNamespaces_) {\n" +
+                   "  if(ns.indexOf('.') !== false) ns = ns.split('.')[0];\n" +
+                   "  top[ns] = window.goog.global[ns];\n" +
+                   "}\nwindow['Blockly'] = top['Blockly'];\nwindow['AI'] = top['AI'];")
+    public void initBlockly();
   }
 
+  private static final String EDITOR_HTML = "<div id=\"FORM_NAME\" class=\"svg\" tabindex=\"-1\"></div>";
   private static final NativeTranslationMap SIMPLE_COMPONENT_TRANSLATIONS;
 
   static {
-    ((BlocklySource) GWT.create(BlocklySource.class))
-        .initBlockly(BlocklyMsg.Loader.getTranslations());
+    ((BlocklySource) GWT.create(BlocklySource.class)).initBlockly();
     exportMethodsToJavascript();
     // Tell the blockly world about companion versions.
     setLanguageVersion(YaVersion.YOUNG_ANDROID_VERSION, YaVersion.BLOCKS_LANGUAGE_VERSION);
-    setPreferredCompanion(
-        MESSAGES.useCompanion(YaVersion.PREFERRED_COMPANION, YaVersion.PREFERRED_COMPANION + "u"),
-        YaVersion.COMPANION_UPDATE_URL,
-        YaVersion.COMPANION_UPDATE_URL1,
-        YaVersion.COMPANION_UPDATE_EMULATOR_URL);
+    setPreferredCompanion(MESSAGES.useCompanion(YaVersion.PREFERRED_COMPANION, YaVersion.PREFERRED_COMPANION + "u"),
+      YaVersion.COMPANION_UPDATE_URL,
+      YaVersion.COMPANION_UPDATE_URL1,
+      YaVersion.COMPANION_UPDATE_EMULATOR_URL);
     for (int i = 0; i < YaVersion.ACCEPTABLE_COMPANIONS.length; i++) {
       addAcceptableCompanion(YaVersion.ACCEPTABLE_COMPANIONS[i]);
     }
@@ -265,24 +265,20 @@ public class BlocklyPanel extends HTMLPanel {
    * @throws YailGenerationException if there was a problem generating the Yail
    */
   public void sendComponentData(String formJson, String packageName) throws YailGenerationException {
-    sendComponentData(formJson, packageName, false);
-  }
-
-  public void sendComponentData(String formJson, String packageName, boolean force) throws YailGenerationException {
     if (!currentForm.equals(formName)) { // Not working on the current form...
       OdeLog.log("Not working on " + currentForm + " (while sending for " + formName + ")");
       return;
     }
     try {
-      doSendJson(formJson, packageName, force);
+      doSendJson(formJson, packageName);
     } catch (JavaScriptException e) {
       throw new YailGenerationException(e.getDescription(), formName);
     }
   }
 
-  public void startRepl(boolean alreadyRunning, boolean forChromebook, boolean forEmulator, boolean forUsb) { // Start the Repl
+  public void startRepl(boolean alreadyRunning, boolean forEmulator, boolean forUsb) { // Start the Repl
     makeActive();
-    doStartRepl(alreadyRunning, forChromebook, forEmulator, forUsb);
+    doStartRepl(alreadyRunning, forEmulator, forUsb);
   }
 
   public void hardReset() {
@@ -668,9 +664,6 @@ public class BlocklyPanel extends HTMLPanel {
   native void makeActive()/*-{
     Blockly.mainWorkspace = this.@com.google.appinventor.client.editor.youngandroid.BlocklyPanel::workspace;
     Blockly.mainWorkspace.refreshBackpack();
-    if (Blockly.mainWorkspace.pendingRender === true) {
-      Blockly.mainWorkspace.pendingRenderFunc();
-    }
     // Trigger a screen switch to send new YAIL.
     var parts = Blockly.mainWorkspace.formName.split(/_(.+)/);  // Split string on first _
     if (Blockly.ReplMgr.isConnected()) {
@@ -700,7 +693,7 @@ public class BlocklyPanel extends HTMLPanel {
    */
   public native String getBlocksContent() /*-{
     return this.@com.google.appinventor.client.editor.youngandroid.BlocklyPanel::workspace
-      .saveBlocksFile(@com.google.appinventor.common.version.AppInventorFeatures::doPrettifyXml()());
+      .saveBlocksFile();
   }-*/;
 
   /**
@@ -812,13 +805,9 @@ public class BlocklyPanel extends HTMLPanel {
       .getFormYail(formJson, packageName);
   }-*/;
 
-  public void doSendJson(String formJson, String packageName) {
-    doSendJson(formJson, packageName, false);
-  };
-
-  public native void doSendJson(String formJson, String packageName, boolean force) /*-{
+  public native void doSendJson(String formJson, String packageName) /*-{
     Blockly.ReplMgr.sendFormData(formJson, packageName,
-      this.@com.google.appinventor.client.editor.youngandroid.BlocklyPanel::workspace, force);
+      this.@com.google.appinventor.client.editor.youngandroid.BlocklyPanel::workspace);
   }-*/;
 
   public native void doResetYail() /*-{
@@ -834,8 +823,8 @@ public class BlocklyPanel extends HTMLPanel {
     }
   }-*/;
 
-  public native void doStartRepl(boolean alreadyRunning, boolean forChromebook, boolean forEmulator, boolean forUsb) /*-{
-    Blockly.ReplMgr.startRepl(alreadyRunning, forChromebook, forEmulator, forUsb);
+  public native void doStartRepl(boolean alreadyRunning, boolean forEmulator, boolean forUsb) /*-{
+    Blockly.ReplMgr.startRepl(alreadyRunning, forEmulator, forUsb);
   }-*/;
 
   public native void doHardReset() /*-{

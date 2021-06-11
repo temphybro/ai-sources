@@ -63,76 +63,10 @@ public interface Images extends Resources {
   ImageResource close();
 
   /**
-   * Phone status bar for Android Holo shown above the form in the visual designer
+   * Phone status bar shown above the form in the visual designer
    */
   @Source("com/google/appinventor/images/phonebar.png")
   ImageResource phonebar();
-
-  /**
-   * Phone status bar for the Android Material form in the visual designer
-   */
-  @Source("com/google/appinventor/images/phonebarAndroidMaterial.png")
-  ImageResource phonebarAndroidMaterial();
-
-  /**
-   * Phone status bar for iPhone containing white left side icons in the visual designer
-   */
-  @Source("com/google/appinventor/images/iPhoneLeftWhiteFB.png")
-  ImageResource phonebariPhoneLeftWhite();
-
-  /**
-   * Phone status bar for iPhone containing white right side icons in the visual designer
-   */
-  @Source("com/google/appinventor/images/iPhoneRightWhite.png")
-  ImageResource phonebariPhoneRightWhite();
-
-  /**
-   * Phone status bar for iPhone containing black left side icons in the visual designer
-   */
-  @Source("com/google/appinventor/images/iPhoneLeftBlack.png")
-  ImageResource phonebariPhoneLeftBlack();
-
-  /**
-   * Phone status bar for iPhone containing black right side icons in the visual designer
-   */
-  @Source("com/google/appinventor/images/iPhoneRightBlack.png")
-  ImageResource phonebariPhoneRightBlack();
-
-  /**
-   * Phone status bar for iPad containing black left side icons in the visual designer
-   */
-  @Source("com/google/appinventor/images/iPadBlackFB.png")
-  ImageResource phonebariPadLeftBlack();
-
-  /**
-   * Phone status bar for iPad containing black right side icons in the visual designer
-   */
-  @Source("com/google/appinventor/images/iPadRightBlack.png")
-  ImageResource phonebariPadRightBlack();
-
-  /**
-   * Phone status bar for iPad containing white left side icons in the visual designer
-   */
-  @Source("com/google/appinventor/images/iPadLeftWhiteFB.png")
-  ImageResource phonebariPadLeftWhite();
-
-  /**
-   * Phone status bar for iPad containing white right side icons in the visual designer
-   */
-  @Source("com/google/appinventor/images/iPadRightWhite.png")
-  ImageResource phonebariPadRightWhite();
-
-  /**
-   * Phone status bar containing white book icon for the iOS form in the visual designer
-   */
-  @Source("com/google/appinventor/images/iOSBookmarkWhite.png")
-  ImageResource bookIconWhite();
-
-  /**
-   * Phone status bar containing black book icon for the iOS form in the visual designer
-   */
-  @Source("com/google/appinventor/images/iOSBookmarkBlack.png")
-  ImageResource bookIconBlack();
 
   /**
    * Spinning/wait graphic to indicate long-running operations.
@@ -157,38 +91,6 @@ public interface Images extends Resources {
     */
    @Source("com/google/appinventor/images/accelerometersensor.png")
    ImageResource accelerometersensor();
-
-   /**
-    * Designer palette item: lightsensor component
-    * <p>
-    * Source: https://feathericons.com/
-    */
-   @Source("com/google/appinventor/images/lightsensor.png")
-   ImageResource lightsensor();
-
-   /**
-    * Designer palette item: barometer component
-    * <p>
-    * Source: Ellen Spertus, released into public domain
-    */
-   @Source("com/google/appinventor/images/barometer.png")
-   ImageResource barometer();
-
-   /**
-    * Designer palette item: thermometer component
-    * <p>
-    * Source: Ellen Spertus, released into public domain
-    */
-   @Source("com/google/appinventor/images/thermometer.png")
-   ImageResource thermometer();
-
-  /**
-    * Designer palette item: hygrometer component
-    * <p>
-    * Source: Ellen Spertus, released into public domain
-    */
-   @Source("com/google/appinventor/images/hygrometer.png")
-   ImageResource hygrometer();
 
   /**
    * Designer palette item: barcode scanner component
@@ -590,12 +492,6 @@ public interface Images extends Resources {
   ImageResource lists();
 
   /**
-   * Built in drawer item: dictionaries
-   */
-  @Source("com/google/appinventor/images/dictionaries.png")
-  ImageResource dictionaries();
-
-  /**
    * Built in drawer item: colors
    */
   @Source("com/google/appinventor/images/colors.png")
@@ -697,12 +593,6 @@ public interface Images extends Resources {
    ImageResource logo();
 
   /**
-   * Designer palette item: Arduino component
-   */
-  @Source("com/google/appinventor/images/arduino.png")
-  ImageResource arduino();
-  
-  /**
    * Media icon: image
    */
   @Source("com/google/appinventor/images/mediaIcon_img.png")
@@ -719,18 +609,6 @@ public interface Images extends Resources {
    */
   @Source("com/google/appinventor/images/mediaIcon_video.png")
   ImageResource mediaIconVideo();
-  
-  /**
-   * Designer palette item: Magnetic Field Sensor component
-   */
-  @Source("com/google/appinventor/images/magneticSensor.png")
-  ImageResource magneticSensor();
-
-  /**
-   * Designer palette item:
-   */
-  @Source("com/google/appinventor/images/navigation.png")
-  ImageResource navigationComponent();
 
   /**
   * Wilson Logo 
@@ -750,9 +628,4 @@ public interface Images extends Resources {
   @Source("com/google/appinventor/images/YRLogo.png")
   ImageResource YRLogo();
 
-  /**
-   * Download app icon
-   */
-  @Source("com/google/appinventor/images/get-app.png")
-  ImageResource GetApp();
 }

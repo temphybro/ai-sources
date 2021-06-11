@@ -1,5 +1,5 @@
 // -*- mode: java; c-basic-offset: 2; -*-
-// Copyright 2018-2020 MIT, All rights reserved
+// Copyright 2018 MIT, All rights reserved
 // Released under the Apache License, Version 2.0
 // http://www.apache.org/licenses/LICENSE-2.0
 
@@ -7,14 +7,13 @@ package com.google.appinventor.components.runtime;
 
 import android.app.Activity;
 import android.content.res.ColorStateList;
+import android.support.v4.graphics.drawable.DrawableCompat;
+import android.support.v7.widget.SwitchCompat;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import androidx.appcompat.widget.SwitchCompat;
-import androidx.core.graphics.drawable.DrawableCompat;
 import com.google.appinventor.components.annotations.DesignerComponent;
 import com.google.appinventor.components.annotations.DesignerProperty;
 import com.google.appinventor.components.annotations.PropertyCategory;
-import com.google.appinventor.components.annotations.SimpleEvent;
 import com.google.appinventor.components.annotations.SimpleObject;
 import com.google.appinventor.components.annotations.SimpleProperty;
 import com.google.appinventor.components.common.ComponentCategory;
@@ -23,11 +22,9 @@ import com.google.appinventor.components.common.YaVersion;
 import com.google.appinventor.components.runtime.util.SdkLevel;
 
 /**
- * `Switch` components can detect user taps and can change their boolean state in response. They
- * are identical to {@link CheckBox}es except in appearance.
+ * Toggle switch with the ability to detect initialization, focus
+ * change (mousing on or off of it), and user clicks.
  *
- * Switches have an on (true) state and an off (false) state. A `Switch` component raises an event
- * when the user taps it to toggle between states.
  */
 @DesignerComponent(version = YaVersion.SWITCH_COMPONENT_VERSION,
     description = "Toggle switch that raises an event when the user clicks on it. " +
@@ -89,18 +86,18 @@ public final class Switch extends ToggleBase<CompoundButton> {
   }
 
   /**
-   * Returns the `%type%`'s thumb color (button that toggles back and forth)
+   * Returns the switch's thumb color (button that toggles back and forth)
    * when the switch is ON/Checked
    *
    * @return  thumb RGB color with alpha
    */
-  @SimpleProperty(category = PropertyCategory.APPEARANCE)
+  @SimpleProperty(category = PropertyCategory.APPEARANCE, userVisible = false)
   public int ThumbColorActive() {
     return thumbColorActive;
   }
 
   /**
-   * Specifies the `%type%`'s thumb color when switch is in the On state.
+   * Specifies the switch's thumb color when switch is ON/Checked
    *
    * @param argb  thumb RGB color with alpha
    */
@@ -116,7 +113,7 @@ public final class Switch extends ToggleBase<CompoundButton> {
   }
 
   /**
-   * Returns the `%type%`'s thumb color (button that toggles back and forth)
+   * Returns the switch's thumb color (button that toggles back and forth)
    * when the switch is Off/Unchecked
    *
    * @return  thumb RGB color with alpha
@@ -127,7 +124,7 @@ public final class Switch extends ToggleBase<CompoundButton> {
   }
 
   /**
-   * Specifies the `%type%`'s thumb color when switch is in the Off state.
+   * Specifies the switch's thumb color when switch is Off/Unchecked
    *
    * @param argb  thumb RGB color with alpha
    */
@@ -143,7 +140,7 @@ public final class Switch extends ToggleBase<CompoundButton> {
   }
 
   /**
-   * Returns the `%type%`'s track color
+   * Returns the switch's track color
    *
    * @return  track RGB color with alpha
    */
@@ -157,7 +154,7 @@ public final class Switch extends ToggleBase<CompoundButton> {
   }
 
   /**
-   * Specifies the `%type%`'s track color when in the On state.
+   * Specifies the switch's track color
    *
    * @param argb  track RGB color with alpha
    */
@@ -171,11 +168,6 @@ public final class Switch extends ToggleBase<CompoundButton> {
       view.invalidate();
     }
   }
-
-  /**
-   * Specifies the `%type%`'s track color when in the Off state.
-   * @param argb
-   */
   @DesignerProperty(editorType = PropertyTypeConstants.PROPERTY_TYPE_COLOR,
           defaultValue = Component.DEFAULT_VALUE_COLOR_DKGRAY)
   @SimpleProperty(description = "Color of the toggle track when switched off", userVisible = true)
@@ -188,7 +180,7 @@ public final class Switch extends ToggleBase<CompoundButton> {
   }
 
   /**
-   * Returns true if the `%type%` is on.
+   * Returns true if the checkbox is checked.
    *
    * @return  {@code true} indicates checked, {@code false} unchecked
    */
@@ -199,9 +191,6 @@ public final class Switch extends ToggleBase<CompoundButton> {
   }
 
   /**
-   * True if the switch is in the On state, false otherwise.
-   *
-   * @internaldoc
    * Checked property setter method.
    *
    * @param value  {@code true} indicates checked, {@code false} unchecked
@@ -212,12 +201,6 @@ public final class Switch extends ToggleBase<CompoundButton> {
   public void On(boolean value) {
     view.setChecked(value);
     view.invalidate();
-  }
-
-  @Override
-  @SimpleEvent(description = "User change the state of the `Switch` from On to Off or back.")
-  public void Changed() {
-    super.Changed();
   }
 
 }

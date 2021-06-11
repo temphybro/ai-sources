@@ -31,11 +31,8 @@ public class TestUtils {
       dir = dir.getParentFile();
     }
 
-    throw new RuntimeException("Unable to locate App Inventor root");
-  }
-
-  public static String windowsToUnix(String path) {
-    return path.replaceAll("\\\\", "/");
+    assert false;
+    return null;  //  to make compiler happy
   }
 
 }

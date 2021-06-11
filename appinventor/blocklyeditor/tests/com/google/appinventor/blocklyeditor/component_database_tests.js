@@ -3,9 +3,6 @@
 // Released under the Apache License, Version 2.0
 // http://www.apache.org/licenses/LICENSE-2.0
 
-var fs = require('fs'); //Always required to read from files
-var messages = fs.read('../build/blocklyeditor/msg/messages.json');
-
 // PhantomJS page object to open and load an URL
 var page = require('webpage').create();
 // Some debugging from PhantomJS
@@ -27,9 +24,6 @@ page.open('src/demos/yail/yail_testing_index.html', function(status) {
 
   // Evaluate the following:
   var passed = page.evaluate(function() {
-
-    // Set the translation messages object
-    Blockly.Msg = JSON.parse(arguments[0]);
 
     var db = Blockly.mainWorkspace.getComponentDatabase();
 
@@ -67,7 +61,7 @@ page.open('src/demos/yail/yail_testing_index.html', function(status) {
       'METHOD-TranslatedMethod': 'SuccessfulMethod',
       'PROPERTY-TranslatedProperty': 'SuccessfulProperty',
       'EVENTDESC-TranslatedEvent': 'Successfully translated event test.',
-      'METHODDESC-TranslatedMethod': 'Successfully translated method test.',
+      'METHDESC-TranslatedMethod': 'Successfully translated method test.',
       'PROPDESC-TranslatedProperty': 'Successfully translated property test.'
     });
 
@@ -104,7 +98,7 @@ page.open('src/demos/yail/yail_testing_index.html', function(status) {
     assertEquals('This is an untranslated test.', block.tooltip);
 
     return true;
-  }, messages);
+  });
 
   //This is the actual result of the test
   console.log(passed);

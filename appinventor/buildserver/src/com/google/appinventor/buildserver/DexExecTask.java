@@ -16,25 +16,26 @@
 
 package com.google.appinventor.buildserver;
 
-import com.google.common.hash.HashCode;
-import com.google.common.hash.HashFunction;
-import com.google.common.hash.Hashing;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
+
+import com.google.common.hash.HashCode;
+import com.google.common.hash.HashFunction;
+import com.google.common.hash.Hashing;
 
 /**
  * Dex task, modified from the Android SDK to run in BuildServer.
  * Custom task to execute dx while handling dependencies.
  */
-public class DexExecTask {
+public class DexExecTask  {
 
     private String mExecutable;
     private String mOutput;
@@ -44,15 +45,12 @@ public class DexExecTask {
     private int mChildProcessRamMb = 1024;
     private boolean mDisableDexMerger = false;
     private static Map<String, String> alreadyChecked = new HashMap<String, String>();
-    private String mainDexFile = null;
-    private boolean mPredex = true;
 
-    private static final Object semaphore = new Object(); // Used to protect dex cache creation
+    private static Object semaphore = new Object(); // Used to protect dex cache creation
 
 
     /**
      * Sets the value of the "executable" attribute.
-     *
      * @param executable the value.
      */
     public void setExecutable(String executable) {
@@ -61,23 +59,14 @@ public class DexExecTask {
 
     /**
      * Sets the value of the "verbose" attribute.
-     *
      * @param verbose the value.
      */
     public void setVerbose(boolean verbose) {
         mVerbose = verbose;
     }
 
-    public void setMainDexClassesFile(String classList) {
-        mainDexFile = classList;
-        if (classList != null) {
-            mPredex = false;
-        }
-    }
-
     /**
      * Sets the value of the "output" attribute.
-     *
      * @param output the value.
      */
     public void setOutput(String output) {
@@ -88,13 +77,8 @@ public class DexExecTask {
         mDexedLibs = dexedLibs;
     }
 
-    public void setPredex(boolean predex) {
-        mPredex = predex;
-    }
-
     /**
      * Sets the value of the "nolocals" attribute.
-     *
      * @param verbose the value.
      */
     public void setNoLocals(boolean nolocals) {
@@ -116,10 +100,11 @@ public class DexExecTask {
             return true;
         }
 
-        synchronized (semaphore) {
+        synchronized(semaphore) {
 
             final int count = inputs.size();
-            for (int i = 0; i < count; i++) {
+            boolean allSuccessful = true;
+            for (int i = 0 ; i < count; i++) {
                 File input = inputs.get(i);
                 if (input.isFile()) {
                     // check if this libs needs to be pre-dexed
@@ -127,7 +112,7 @@ public class DexExecTask {
                     File dexedLib = new File(mDexedLibs, fileName);
                     String dexedLibPath = dexedLib.getAbsolutePath();
 
-                    if (!dexedLib.isFile()/*||
+                    if (dexedLib.isFile() == false/*||
                                                     dexedLib.lastModified() < input.lastModified()*/) {
 
                         System.out.println(
@@ -138,8 +123,8 @@ public class DexExecTask {
                             dexedLib.delete();
                         }
 
-                        boolean dexSuccess = runDx(input, dexedLibPath, /*showInputs=*/ false);
-                        if (!dexSuccess) return false;
+                        boolean dexSuccess = runDx(input, dexedLibPath, false /*showInput*/);
+                        allSuccessful = allSuccessful && dexSuccess;
                     } else {
                         System.out.println(
                             String.format("Using Pre-Dexed %1$s <- %2$s",
@@ -150,7 +135,7 @@ public class DexExecTask {
                     inputs.set(i, dexedLib);
                 }
             }
-            return true;
+            return allSuccessful;
         }
     }
 
@@ -177,10 +162,8 @@ public class DexExecTask {
 
     public boolean execute(List<File> paths) {
         // pre dex libraries if needed
-        if (mPredex) {
-            boolean successPredex = preDexLibraries(paths);
-            if (!successPredex) return false;
-        }
+        boolean successPredex = preDexLibraries(paths);
+        if (!successPredex) return false;
 
         System.out.println(String.format(
                 "Converting compiled files and external libraries into %1$s...", mOutput));
@@ -203,12 +186,6 @@ public class DexExecTask {
 
         commandLineList.add("--dex");
         commandLineList.add("--positions=lines");
-
-        if (mainDexFile != null) {
-            commandLineList.add("--multi-dex");
-            commandLineList.add("--main-dex-list=" + mainDexFile);
-            commandLineList.add("--minimal-main-dex");
-        }
 
         if (mNoLocals) {
             commandLineList.add("--no-locals");

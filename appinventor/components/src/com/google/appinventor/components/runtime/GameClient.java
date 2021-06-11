@@ -721,7 +721,7 @@ public class GameClient extends AndroidNonvisibleComponent
             String sender = message.getString(MESSAGE_SENDER_KEY);
             String time = message.getString(MESSAGE_TIME_KEY);
             List<Object> contents = JsonUtil.getListFromJsonArray(message.
-                getJSONArray(MESSAGE_CONTENT_KEY), true);
+                getJSONArray(MESSAGE_CONTENT_KEY));
             // Assumes that the server is going to return messages in
             // chronological order.
             if (requestedType.equals("")) {
@@ -985,7 +985,7 @@ public class GameClient extends AndroidNonvisibleComponent
       public void onSuccess(final JSONObject result) {
         try {
           ServerCommandSuccess(command, JsonUtil.getListFromJsonArray(result.
-              getJSONArray(MESSAGE_CONTENT_KEY), true));
+              getJSONArray(MESSAGE_CONTENT_KEY)));
         } catch (JSONException e) {
           Log.w(LOG_TAG, e);
           Info("Server command response failed to parse.");

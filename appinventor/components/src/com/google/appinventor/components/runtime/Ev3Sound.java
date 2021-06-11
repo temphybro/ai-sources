@@ -30,8 +30,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * ![EV3 component icon](images/legoMindstormsEv3.png)
- *
  * A component that provides a high-level interface to a LEGO MINDSTORMS EV3
  * robot, which provides sound functionalities.
  *

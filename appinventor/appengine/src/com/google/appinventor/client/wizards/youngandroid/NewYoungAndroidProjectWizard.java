@@ -6,6 +6,7 @@
 
 package com.google.appinventor.client.wizards.youngandroid;
 
+import java.util.regex.Pattern;
 
 import com.google.appinventor.client.Ode;
 
@@ -21,6 +22,7 @@ import com.google.appinventor.client.youngandroid.TextValidators;
 import com.google.appinventor.common.utils.StringUtils;
 import com.google.appinventor.shared.rpc.project.youngandroid.NewYoungAndroidProjectParameters;
 import com.google.appinventor.shared.rpc.project.youngandroid.YoungAndroidProjectNode;
+import com.google.appinventor.client.youngandroid.TextValidators;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
@@ -58,7 +60,6 @@ public final class NewYoungAndroidProjectWizard extends NewProjectWizard {
           disableOkButton();
           return false;
         }
-          errorMessage = TextValidators.getWarningMessages(value);
           enableOkButton();
           return true;
       }
@@ -112,10 +113,9 @@ public final class NewYoungAndroidProjectWizard extends NewProjectWizard {
     initFinishCommand(new Command() {
       @Override
       public void execute() {
-        String projectName = projectNameTextBox.getText().trim();
-        projectName = projectName.replaceAll("( )+", " ").replace(" ", "_");
-        if (TextValidators.checkNewProjectName(projectName) 
-              == TextValidators.ProjectNameStatus.SUCCESS) {
+        String projectName = projectNameTextBox.getText();
+
+        if (TextValidators.checkNewProjectName(projectName)) {
           String packageName = StringUtils.getProjectPackage(
               Ode.getInstance().getUser().getUserEmail(), projectName);
           NewYoungAndroidProjectParameters parameters = new NewYoungAndroidProjectParameters(

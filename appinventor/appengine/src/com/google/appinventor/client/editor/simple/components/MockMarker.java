@@ -420,7 +420,7 @@ public class MockMarker extends MockMapFeatureBaseWithFill {
     map.addLayer(marker);
     if (!marker.clickHandler) {
       marker.clickHandler = function(e) {
-        self.@com.google.appinventor.client.editor.simple.components.MockMarker::select(*)(e);
+        self.@com.google.appinventor.client.editor.simple.components.MockMarker::select()();
         if (e.originalEvent) e.originalEvent.stopPropagation();
       };
       marker.dragHandler = function(e) {
@@ -429,10 +429,6 @@ public class MockMarker extends MockMapFeatureBaseWithFill {
       };
       marker.on('click dragstart', marker.clickHandler);
       marker.on('dragend', marker.dragHandler);
-    }
-    var isVisible = this.@com.google.appinventor.client.editor.simple.components.MockMapFeatureBase::getVisibleProperty()();
-    if (!isVisible) {
-      map.removeLayer(marker);
     }
   }-*/;
 

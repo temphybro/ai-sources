@@ -24,13 +24,8 @@ import com.google.appinventor.components.runtime.util.GingerbreadUtil;
 import com.google.appinventor.components.runtime.util.SdkLevel;
 
 /**
- * Non-visible component to provide NFC capabilities. For now this component supports the reading
- * and writing of text tags only (if supported by the device).
+ * Controller for Near Field Communication
  *
- * In order to read and write text tags, the component must have its {@link #ReadMode(boolean)}
- * property set to `true`{:.logic.block} or `false`{:.logic.block} respectively.
- *
- * **Note:** This component will only work on Screen1 of any App Inventor app.
  */
 @DesignerComponent(version = YaVersion.NEARFIELD_COMPONENT_VERSION,
     description = "<p>Non-visible component to provide NFC capabilities.  " +
@@ -85,9 +80,7 @@ implements OnStopListener, OnResumeListener, OnPauseListener, OnNewIntentListene
   /**
    * Indicates that a new tag has been detected.
    * Currently this is only a plain text tag, as specified in the
-   * manifest.
-   * @internaldoc
-   * See Compiler.java.
+   * manifest.  See Compiler.java.
    */
   @SimpleEvent
   public void TagRead(String message) {
@@ -96,9 +89,6 @@ implements OnStopListener, OnResumeListener, OnPauseListener, OnNewIntentListene
     EventDispatcher.dispatchEvent(this, "TagRead", message);
   }
 
-  /**
-   * Indicates that a tag has come into range of the NFC sensor and has been written.
-   */
   @SimpleEvent
   public void TagWritten() {
     Log.d(TAG, "Tag written: " + textToWrite);
@@ -137,21 +127,15 @@ implements OnStopListener, OnResumeListener, OnPauseListener, OnNewIntentListene
     return textToWrite;
   }
 
-  /**
-   * Returns the write type for the NFC component. For this version of the component, it is always
-   * `1`.
-   */
   @SimpleProperty(category = PropertyCategory.BEHAVIOR)
   public int WriteType() {
     return writeType;
   }
 
   /**
-   * Specifies whether the NFC hardware should operate in read mode (`true`{:.logic.block}) or
-   * write mode (`false`{:.logic.block}).
+   * Allows the user to set read/write mode
    */
-  @SimpleProperty(category = PropertyCategory.BEHAVIOR,
-      description = "Specifies whether the NFC hardware should operate in read or write mode.")
+  @SimpleProperty(category = PropertyCategory.BEHAVIOR)
   public void ReadMode(boolean newMode) {
     Log.d(TAG, "Read mode set to" + newMode);
     readMode = newMode;
@@ -161,12 +145,9 @@ implements OnStopListener, OnResumeListener, OnPauseListener, OnNewIntentListene
   }
 
   /**
-   * Specifies the content that will be written to the tag when in write mode. This method has no
-   * effect if {@link #ReadMode()} is `true`{:.logic.block}.
+   * Allows the user to set the content of the tag that will be written
    */
-  @SimpleProperty(category = PropertyCategory.BEHAVIOR,
-      description = "Specifies the content that will be written to the tag when in write mode. "
-          + "This method has no effect if ReadMode is true.")
+  @SimpleProperty(category = PropertyCategory.BEHAVIOR)
   public void TextToWrite(String newText) {
     Log.d(TAG, "Text to write set to" + newText);
     textToWrite = newText;

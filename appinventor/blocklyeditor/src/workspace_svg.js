@@ -230,11 +230,7 @@ Blockly.WorkspaceSvg.prototype.addWarningIndicator = function() {
  */
 Blockly.WorkspaceSvg.prototype.addBackpack = function() {
   if (Blockly.Backpack && !this.options.readOnly) {
-    this.backpack_ = new Blockly.Backpack(this, {
-        scrollbars: true,
-        media: './assets/',
-        disabledPatternId: this.options.disabledPatternId,
-      });
+    this.backpack_ = new Blockly.Backpack(this, {scrollbars: true, media: './assets/'});
     var svgBackpack = this.backpack_.createDom(this);
     this.svgGroup_.appendChild(svgBackpack);
     this.backpack_.init();
@@ -328,7 +324,7 @@ Blockly.WorkspaceSvg.prototype.render = function(blocks) {
       for (var t = 0, topBlock; topBlock = topBlocks[t]; t++) {
         Blockly.Instrument.timer(
           function () {
-            topBlock.render(false);
+            topBlock.renderDown();
           },
           function (result, timeDiffInner) {
             Blockly.Instrument.stats.renderDownTime += timeDiffInner;
@@ -471,7 +467,6 @@ Blockly.WorkspaceSvg.prototype.loadBlocksFile = function(formJson, blocksContent
   if (blocksContent.length != 0) {
     try {
       Blockly.Events.disable();
-      this.isLoading = true;
       if (Blockly.Versioning.upgrade(formJson, blocksContent, this)) {
         var self = this;
         setTimeout(function() {
@@ -479,7 +474,6 @@ Blockly.WorkspaceSvg.prototype.loadBlocksFile = function(formJson, blocksContent
         });
       }
     } finally {
-      this.isLoading = false;
       Blockly.Events.enable();
     }
     if (this.getCanvas() != null) {
@@ -511,11 +505,10 @@ Blockly.WorkspaceSvg.prototype.verifyAllBlocks = function() {
  * Saves the workspace as an XML file and returns the contents as a
  * string.
  *
- * @param {boolean} prettify Specify true if the resulting workspace should be pretty-printed.
  * @returns {string} XML serialization of the workspace's blocks.
  */
-Blockly.WorkspaceSvg.prototype.saveBlocksFile = function(prettify) {
-  return Blockly.SaveFile.get(prettify, this);
+Blockly.WorkspaceSvg.prototype.saveBlocksFile = function() {
+  return Blockly.SaveFile.get(this);
 };
 
 /**
@@ -968,7 +961,7 @@ Blockly.WorkspaceSvg.prototype.customContextMenu = function(menuOptions) {
     var allBlocks = Blockly.mainWorkspace.getAllBlocks();
     Blockly.Events.setGroup(true);
     for (var x = 0, block; block = allBlocks[x]; x++) {
-      if (block.comment != null && !block.isCollapsed()) {
+      if (block.comment != null) {
         block.comment.setVisible(true);
       }
     }
@@ -983,7 +976,7 @@ Blockly.WorkspaceSvg.prototype.customContextMenu = function(menuOptions) {
     var allBlocks = Blockly.mainWorkspace.getAllBlocks();
     Blockly.Events.setGroup(true);
     for (var x = 0, block; block = allBlocks[x]; x++) {
-      if (block.comment != null && !block.isCollapsed()) {
+      if (block.comment != null) {
         block.comment.setVisible(false);
       }
     }
@@ -1237,18 +1230,13 @@ Blockly.WorkspaceSvg.prototype.requestRender = function(block) {
   if (!this.pendingRender) {
     this.needsRendering = [];
     this.pendingBlockIds = {};
-    this.pendingRenderFunc = function() {
+    this.pendingRender = setTimeout(function() {
       try {
         this.render(this.needsRendering.length === 0 ? undefined : this.needsRendering);
       } finally {
         this.pendingRender = null;
       }
-    }.bind(this);
-    if (this.svgGroup_.parentElement.parentElement.parentElement.style.display === 'none') {
-      this.pendingRender = true;
-    } else {
-      this.pendingRender = setTimeout(this.pendingRenderFunc, 0);
-    }
+    }.bind(this));
   }
   if (block) {
     // Rendering uses Blockly.BlockSvg.renderDown, so we only need a list of the topmost blocks

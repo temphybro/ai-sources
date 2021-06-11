@@ -28,84 +28,11 @@ Blockly.Blocks['math_number'] = {
   typeblock: [{translatedName: Blockly.Msg.LANG_MATH_MUTATOR_ITEM_INPUT_NUMBER}]
 };
 
-/**
- * Ensures that only a number may be entered into the text field. Supports
- * decimal, binary, octal, and hex.
- * @param {string} text The text to check the validity of.
- * @return {string} Validated text.
- */
 Blockly.Blocks.math_number.validator = function (text) {
+  // Ensure that only a number may be entered.
   // TODO: Handle cases like 'o', 'ten', '1,234', '3,14', etc.
-  var n = Number(text || 0);  // Number() supports binary, hex, etc.
-  if (window.isNaN(n)) {
-    // Fall back to old method. This is just UI-Behavior that doesn't affect
-    // the generated code, but we might as well keep it the same.
-    n = window.parseFloat(text || 0);
-    return window.isNaN(n) ? null : String(n);
-  }
-  // Don't convert n to string, because that always returns decimal.
-  return text;
-};
-
-Blockly.Blocks['math_number_radix'] = {
-  category:'Math',
-
-  helpUrl: Blockly.Msg.LANG_MATH_NUMBER_RADIX_HELPURL,
-
-  init: function() {
-    this.dropdown = new Blockly.FieldDropdown([
-        [Blockly.Msg.LANG_MATH_DECIMAL_FORMAT, 'DEC'],
-        [Blockly.Msg.LANG_MATH_BINARY_FORMAT, 'BIN'],
-        [Blockly.Msg.LANG_MATH_OCTAL_FORMAT, 'OCT'],
-        [Blockly.Msg.LANG_MATH_HEXADECIMAL_FORMAT, 'HEX'],
-    ], this.dropdownListener);
-    this.numberField = new Blockly.FieldTextInput('0', this.numberValidator);
-
-    this.setColour(Blockly.MATH_CATEGORY_HUE);
-    this.appendDummyInput()
-        .appendField(this.dropdown, 'OP')
-        .appendField(this.numberField, 'NUM');
-    this.setOutput(true, Blockly.Blocks.Utilities.YailTypeToBlocklyType(
-        "number", Blockly.Blocks.Utilities.OUTPUT));
-    this.setTooltip(Blockly.Msg.LANG_MATH_NUMBER_RADIX_TOOLTIP);
-  },
-
-  typeblock: [{translatedName: Blockly.Msg.LANG_MATH_NUMBER_RADIX_TITLE}],
-
-  dropdownListener: function(newValue) {
-    var numberField = this.sourceBlock_.numberField;
-    var currentPrefix = Blockly.Blocks.math_number_radix.PREFIX[this.getValue()];
-    var currentValue = Number(currentPrefix + numberField.getValue());
-    var newRadix = Blockly.Blocks.math_number_radix.RADIX[newValue];
-    numberField.setValue(currentValue.toString(newRadix))
-  },
-
-  numberValidator: function(text) {
-    if (!text) {
-      return 0;
-    }
-    var dropdown = this.sourceBlock_.dropdown;
-    var prefix = Blockly.Blocks.math_number_radix.PREFIX[dropdown.getValue()];
-    var n = Number(prefix + text);
-    // Do not convert n to string, because that always returns decimal.
-    return window.isNaN(n) ? null : text;
-  }
-};
-
-// Maps dropdown value to radix prefix.
-Blockly.Blocks.math_number_radix.PREFIX = {
-  'DEC': '',
-  'BIN': '0b',
-  'OCT': '0o',
-  'HEX': '0x'
-};
-
-// Maps dropdown value to radix.
-Blockly.Blocks.math_number_radix.RADIX = {
-  'DEC': 10,
-  'BIN': 2,
-  'OCT': 8,
-  'HEX': 16
+  var n = window.parseFloat(text || 0);
+  return window.isNaN(n) ? null : String(n);
 };
 
 Blockly.Blocks['math_compare'] = {
@@ -243,29 +170,14 @@ Blockly.Blocks['math_add'] = {
     this.itemCount_ = 2;
   },
   mutationToDom: Blockly.mutationToDom,
-  domToMutation: function(container) {
-    Blockly.domToMutation.call(this, container);
-
-    // If we only have one input, put the + operator before it
-    if (this.itemCount_ === 1) {
-      this.inputList[0].appendField('0 ' + Blockly.Msg.LANG_MATH_ARITHMETIC_ADD);
-    }
-  },
+  domToMutation: Blockly.domToMutation,
   decompose: function (workspace) {
     return Blockly.decompose(workspace, 'math_mutator_item', this);
   },
-  compose: function(containerBlock) {
-    Blockly.compose.call(this, containerBlock);
-
-    // If we only have one input, put the + operator before it
-    if (this.itemCount_ === 1) {
-      this.inputList[0].appendField('0 ' + Blockly.Msg.LANG_MATH_ARITHMETIC_ADD);
-    }
-  },
+  compose: Blockly.compose,
   saveConnections: Blockly.saveConnections,
   addEmptyInput: function () {
-    this.appendDummyInput(this.emptyInputName)
-      .appendField(Blockly.Msg.LANG_MATH_ARITHMETIC_ADD);
+    var input = this.appendDummyInput(this.emptyInputName);
   },
   addInput: function (inputNum) {
     var input = this.appendValueInput(this.repeatingInputName + inputNum)
@@ -338,25 +250,14 @@ Blockly.Blocks['math_multiply'] = {
     this.itemCount_ = 2;
   },
   mutationToDom: Blockly.mutationToDom,
-  domToMutation: function(container) {
-    Blockly.domToMutation.call(this, container);
-    if (this.itemCount_ === 1) {
-      this.inputList[0].appendField('1 ' + Blockly.Blocks.Utilities.times_symbol);
-    }
-  },
+  domToMutation: Blockly.domToMutation,
   decompose: function (workspace) {
     return Blockly.decompose(workspace, 'math_mutator_item', this);
   },
-  compose: function(containerBlock) {
-    Blockly.compose.call(this, containerBlock);
-    if (this.itemCount_ === 1) {
-      this.inputList[0].appendField('1 ' + Blockly.Blocks.Utilities.times_symbol);
-    }
-  },
+  compose: Blockly.compose,
   saveConnections: Blockly.saveConnections,
   addEmptyInput: function () {
-    this.appendDummyInput(this.emptyInputName)
-      .appendField(Blockly.Blocks.Utilities.times_symbol);
+    var input = this.appendDummyInput(this.emptyInputName);
   },
   addInput: function (inputNum) {
     var input = this.appendValueInput(this.repeatingInputName + inputNum)

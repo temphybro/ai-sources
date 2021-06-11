@@ -1,6 +1,6 @@
 // -*- mode: java; c-basic-offset: 2; -*-
 // Copyright 2009-2011 Google, All Rights reserved
-// Copyright 2011-2019 MIT, All rights reserved
+// Copyright 2011-2012 MIT, All rights reserved
 // Released under the Apache License, Version 2.0
 // http://www.apache.org/licenses/LICENSE-2.0
 
@@ -25,7 +25,6 @@ public final class MockBall extends MockVisibleComponent implements MockSprite {
 
   private static final String PROPERTY_NAME_RADIUS = "Radius";
   private static final String PROPERTY_NAME_PAINTCOLOR = "PaintColor";
-  private static final String PROPERTY_NAME_ORIGIN_AT_CENTER = "OriginAtCenter";
 
   private static final int DEFAULT_RADIUS = 5;
 
@@ -36,10 +35,6 @@ public final class MockBall extends MockVisibleComponent implements MockSprite {
   private int radius = DEFAULT_RADIUS;
   private int diameter = 2 * radius;
   private Color color = Color.BLACK;
-  private boolean originAtCenter = false;
-
-  int x;
-  int y;
 
   /**
    * Creates a new MockBall component.
@@ -69,7 +64,9 @@ public final class MockBall extends MockVisibleComponent implements MockSprite {
     canvas.clear();
     canvas.setFillStyle(color);
     canvas.beginPath();
-    canvas.arc(radius, radius, radius, 0, Math.PI * 2, true);
+    int x = radius;
+    int y = radius;
+    canvas.arc(x, y, radius, 0, Math.PI * 2, true);
     canvas.fill();
   }
 
@@ -82,11 +79,6 @@ public final class MockBall extends MockVisibleComponent implements MockSprite {
       canvas.setCoordSize(diameter, diameter);
       canvas.setPixelSize(diameter, diameter);
       fillCircle();
-      if (originAtCenter) {
-        // Force the position of the ballWidget to be adjusted relative
-        // to the parent canvas.
-        refreshCanvas();
-      }
     } catch (NumberFormatException e) {
       // Ignore this. If we throw an exception here, the project is unrecoverable.
     }
@@ -100,32 +92,6 @@ public final class MockBall extends MockVisibleComponent implements MockSprite {
     fillCircle();
   }
 
-  private void refreshCanvas() {
-    MockCanvas mockCanvas = (MockCanvas) getContainer();
-    // mockCanvas will be null for the MockBall on the palette
-    if (mockCanvas != null) {
-      mockCanvas.reorderComponents(this); //refreshForm();
-    }
-  }
-
-  private void setXProperty(String text) {
-    try {
-      x = (int) Math.round(Double.parseDouble(text));
-    } catch (NumberFormatException e) {
-      // Don't change value if unparseable (should not happen).
-    }
-    refreshCanvas();
-  }
-  
-  private void setYProperty(String text) {
-    try {
-      y = (int) Math.round(Double.parseDouble(text));
-    } catch (NumberFormatException e) {
-      // Don't change value if unparseable (should not happen).
-    }
-    refreshCanvas();
-  }
-
   private void setZProperty(String text) {
     MockCanvas mockCanvas = (MockCanvas) getContainer();
     // mockCanvas will be null for the MockBall on the palette
@@ -133,10 +99,21 @@ public final class MockBall extends MockVisibleComponent implements MockSprite {
       mockCanvas.reorderComponents(this);
     }
   }
-
-  private void setOriginAtCenterProperty(String text) {
-    originAtCenter = Boolean.valueOf(text);
-    refreshCanvas();
+  
+  private void setXProperty(String text) {
+    MockCanvas mockCanvas = (MockCanvas) getContainer();
+    // mockCanvas will be null for the MockBall on the palette
+    if (mockCanvas != null) {
+      mockCanvas.reorderComponents(this);
+    }
+  }
+  
+  private void setYProperty(String text) {
+    MockCanvas mockCanvas = (MockCanvas) getContainer();
+    // mockCanvas will be null for the MockBall on the palette
+    if (mockCanvas != null) {
+      mockCanvas.reorderComponents(this);
+    }
   }
 
   @Override
@@ -174,28 +151,6 @@ public final class MockBall extends MockVisibleComponent implements MockSprite {
       setXProperty(newValue);
     } else if (propertyName.equals(PROPERTY_NAME_Y)) {
       setYProperty(newValue);
-    } else if (propertyName.equals(PROPERTY_NAME_ORIGIN_AT_CENTER)) {
-      setOriginAtCenterProperty(newValue);
     }
-  }
-
-  @Override
-  public int getLeftX() {
-    return x - getXOffset();
-  }
-
-  @Override
-  public int getTopY() {
-    return y - getYOffset();
-  }
-
-  @Override
-  public int getXOffset() {
-    return originAtCenter ? radius : 0;
-  }
-
-  @Override
-  public int getYOffset() {
-    return originAtCenter ? radius : 0;
   }
 }

@@ -52,7 +52,6 @@ Blockly.Yail.YAIL_CLOSE_BLOCK = ")\n";
 Blockly.Yail.YAIL_COMMENT_MAJOR = ";;; ";
 Blockly.Yail.YAIL_COMPONENT_REMOVE = "(remove-component ";
 Blockly.Yail.YAIL_COMPONENT_TYPE = "component";
-Blockly.Yail.YAIL_CONSTANT_ALL = '(static-field com.google.appinventor.components.runtime.util.YailDictionary \'ALL)';
 Blockly.Yail.YAIL_DEFINE = "(def ";
 Blockly.Yail.YAIL_DEFINE_EVENT = "(define-event ";
 Blockly.Yail.YAIL_DEFINE_GENERIC_EVENT = '(define-generic-event ';
@@ -77,8 +76,6 @@ Blockly.Yail.YAIL_SET_LEXICAL_VALUE = "(set-lexical! ";
 Blockly.Yail.YAIL_LINE_FEED = "\n";
 Blockly.Yail.YAIL_NULL = "(get-var *the-null-value*)";
 Blockly.Yail.YAIL_EMPTY_LIST = "'()";
-Blockly.Yail.YAIL_EMPTY_YAIL_LIST = "'(*list*)";
-Blockly.Yail.YAIL_EMPTY_DICT = "(make com.google.appinventor.components.runtime.util.YailDictionary)";
 Blockly.Yail.YAIL_OPEN_BLOCK = "(";
 Blockly.Yail.YAIL_OPEN_COMBINATION = "(";
 Blockly.Yail.YAIL_QUOTE = "'";
@@ -390,8 +387,7 @@ Blockly.Yail.getPropertySettersLines = function(componentJson, componentName, co
   var code = [];
   var type = componentDb.getType(componentJson['$Type']);
   function shouldSendProperty(prop, info) {
-    return (prop.charAt(0) !== '$' && prop !== 'Uuid' &&
-      prop !== 'TutorialURL' && prop !== 'BlocksToolkit') ||
+    return (prop.charAt(0) !== '$' && prop !== 'Uuid' && prop !== 'TutorialURL') ||
       (info && info['alwaysSend']);
   }
   // Gather all of the properties together

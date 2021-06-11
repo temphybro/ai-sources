@@ -239,10 +239,9 @@ public class WebRTCNativeMgr {
       /* Provide a default when the rendezvous server doesn't provide one */
       rendezvousResult = "{\"rendezvous2\" : \"" + YaVersion.RENDEZVOUS_SERVER + "\"," +
         "\"iceservers\" : " +
-        "[{ \"server\" : \"stun:stun.l.google.com:19302\" }," +
-         "{ \"server\" : \"turn:turn.appinventor.mit.edu:3478\"," +
-           "\"username\" : \"oh\"," +
-           "\"password\" : \"boy\"}]}";
+        "[{ \"server\" : \"turn:turn.appinventor.mit.edu:3478\"," +
+        "\"username\" : \"oh\"," +
+        "\"password\" : \"boy\"}]}";
     }
     try {
       JSONObject resultJson = new JSONObject(rendezvousResult);

@@ -349,44 +349,27 @@ public class TemplateUploadWizard extends Wizard implements NewUrlDialogCallback
     initFinishCommand(new Command() {
         @Override
         public void execute() {
+          String filename = selectedTemplateNAME + PROJECT_ARCHIVE_EXTENSION;
           // Make sure the project name is legal and unique.
-          if (TextValidators.checkNewProjectName(selectedTemplateNAME, true) 
-                  != TextValidators.ProjectNameStatus.SUCCESS) {
+          if (!TextValidators.checkNewProjectName(selectedTemplateNAME)) {
             center();
-  
-            new RequestNewProjectNameWizard(new RequestProjectNewNameInterface() {
-              @Override
-              public void getNewName(String name) {
-                createProject(name);
-                hide();
-              }
-            }, selectedTemplateNAME, true);
-          } else {
-            createProject(selectedTemplateNAME);  
+            return;
           }
+          NewProjectCommand callbackCommand = new NewProjectCommand() {
+              @Override
+              public void execute(Project project) {
+                Ode.getInstance().openYoungAndroidProjectInDesigner(project);
+              }
+            };
+
+          createProjectFromExistingZip(selectedTemplateNAME, callbackCommand);
+
+          Tracking.trackEvent(Tracking.PROJECT_EVENT, Tracking.PROJECT_ACTION_NEW_YA, filename);
+          instance = null;
         }
       });
   }
 
-  /**
-   * Create project with given project name.
-   * @param projectNameInExplorer project name to be shown in file explorer
-   */
-  public void createProject(String projectNameInExplorer) {
-    NewProjectCommand callbackCommand = new NewProjectCommand() {
-        @Override
-        public void execute(Project project) {
-          Ode.getInstance().openYoungAndroidProjectInDesigner(project);
-        }
-    };
-
-    createProjectFromExistingZip(selectedTemplateNAME, callbackCommand, projectNameInExplorer);
-
-    Tracking.trackEvent(Tracking.PROJECT_EVENT, Tracking.PROJECT_ACTION_NEW_YA,
-        selectedTemplateNAME + PROJECT_ARCHIVE_EXTENSION);
-    instance = null;  
-  }
-  
   /**
    * The UI consists of a vertical panel that holds a drop-down list box,
    *   a Horizontal panel that holds the templates list (cell list) plus
@@ -593,25 +576,24 @@ public class TemplateUploadWizard extends Wizard implements NewUrlDialogCallback
    *   succeeds (can be {@code null})
    */
   public void createProjectFromExistingZip(final String projectName,
-      final NewProjectCommand onSuccessCommand, final String projectNameInExplorer) {
+    final NewProjectCommand onSuccessCommand) {
 
     // Callback for updating the project explorer after the project is created on the back-end
     final Ode ode = Ode.getInstance();
     final OdeAsyncCallback<UserProject> callback = new OdeAsyncCallback<UserProject>(
-        // failure message
-        MESSAGES.createProjectError()) {
+      // failure message
+      MESSAGES.createProjectError()) {
       @Override
       public void onSuccess(UserProject projectInfo) {
         // Update project explorer -- i.e., display in project view
         if (projectInfo == null) {
 
-          Window.alert("This template has no aia file. Creating a new project with name = " 
-              + projectName);
+          Window.alert("This template has no aia file. Creating a new project with name = " + projectName);
           ode.getProjectService().newProject(
-              YoungAndroidProjectNode.YOUNG_ANDROID_PROJECT_TYPE,
-              projectName,
-              new NewYoungAndroidProjectParameters(projectName),
-              this);
+            YoungAndroidProjectNode.YOUNG_ANDROID_PROJECT_TYPE,
+            projectName,
+            new NewYoungAndroidProjectParameters(projectName),
+            this);
           return;
         }
         Project project = ode.getProjectManager().addProject(projectInfo);
@@ -625,19 +607,17 @@ public class TemplateUploadWizard extends Wizard implements NewUrlDialogCallback
     String pathToZip = "";
     if (usingExternalTemplate) {
       String zipUrl = templateHostUrl + TEMPLATES_ROOT_DIRECTORY + projectName + "/" +
-          projectName + PROJECT_ARCHIVE_ENCODED_EXTENSION;
+        projectName + PROJECT_ARCHIVE_ENCODED_EXTENSION;
       RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, zipUrl);
-      try {
+     try {
         Request response = builder.sendRequest(null, new RequestCallback() {
             @Override
             public void onError(Request request, Throwable exception) {
               Window.alert("Unable to load Project Template Data");
             }
-
             @Override
             public void onResponseReceived(Request request, Response response) {
-              ode.getProjectService().newProjectFromExternalTemplate(projectNameInExplorer,
-                      response.getText(), callback);
+              ode.getProjectService().newProjectFromExternalTemplate(projectName,response.getText(),callback);
             }
 
           });
@@ -647,17 +627,8 @@ public class TemplateUploadWizard extends Wizard implements NewUrlDialogCallback
     } else {
       pathToZip = TEMPLATES_ROOT_DIRECTORY + projectName + "/" + projectName +
         PROJECT_ARCHIVE_EXTENSION;
-      ode.getProjectService().newProjectFromTemplate(projectNameInExplorer, pathToZip, callback);
+      ode.getProjectService().newProjectFromTemplate(projectName, pathToZip, callback);
     }
-  }
-
-  private static boolean isTemplateName(String name) {
-    for (TemplateInfo template : builtInTemplates) {
-      if (template.name.equals(name)) {
-        return true;
-      }
-    }
-    return false;
   }
 
   /**
@@ -672,18 +643,6 @@ public class TemplateUploadWizard extends Wizard implements NewUrlDialogCallback
    * @param onSuccessCommand command to open the project
    */
   public static void openProjectFromTemplate(String url, final NewProjectCommand onSuccessCommand) {
-    if (isTemplateName(url)) {
-      if (TextValidators.checkNewProjectName(url) 
-              == TextValidators.ProjectNameStatus.SUCCESS) {
-        new TemplateUploadWizard().createProjectFromExistingZip(url, new NewProjectCommand() {
-          @Override
-          public void execute(Project project) {
-            Ode.getInstance().openYoungAndroidProjectInDesigner(project);
-          }
-        }, url);
-      }
-      return;
-    }
     if(!url.startsWith("http")) {
       url = "http://" + url;
     }
@@ -725,8 +684,7 @@ public class TemplateUploadWizard extends Wizard implements NewUrlDialogCallback
     }
 
     // If project of the same name already exists, just open it
-    if (TextValidators.checkNewProjectName(projectName) 
-              != TextValidators.ProjectNameStatus.SUCCESS) {
+    if (!TextValidators.checkNewProjectName(projectName)) {
       Project project = ode.getProjectManager().getProject(projectName);
       if (onSuccessCommand != null) {
         onSuccessCommand.execute(project);

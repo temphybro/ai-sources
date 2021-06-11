@@ -48,7 +48,7 @@
        the jars needed to compile the build server classes.
        ===================================================================== -->
   <target name="BuildServer"
-          depends="init,CopyToRunLibDir,components_AndroidRuntime">
+          depends="init,CopyToRunLibDir,components_AndroidRuntime,components_Barcode,components_ComponentList">
     <property name="BuildServer-class.dir" location="${class.dir}/BuildServer" />
     <mkdir dir="${BuildServer-class.dir}" />
 
@@ -64,7 +64,7 @@
     <copy todir="${classes.files.dir}" flatten="true">
       <fileset dir="${src.dir}/${buildserver.pkg}/resources" includes="*"/>
       <fileset dir="${build.dir}/components"
-               includes="AndroidRuntime.jar,simple_components.txt,simple_components_build_info.json,simple_components.json"/>
+               includes="AndroidRuntime.jar,Barcode.jar,simple_components.txt,simple_components_build_info.json,simple_components.json"/>
       <!-- Map assets for build server -->
       <fileset dir="${lib.dir}/leaflet" includes="leaflet.js,leaflet.css" />
       <fileset dir="${lib.dir}/leaflet/assets" includes="*"/>
@@ -78,7 +78,6 @@
     <property name="classes.tools.dir" location="${BuildServer-class.dir}/tools" />
     <copy todir="${classes.tools.dir}">
       <fileset dir="${lib.dir}/android/tools" includes="*/aapt" />
-      <fileset dir="${lib.dir}/android/tools" includes="*/aapt2" />
       <fileset dir="${lib.dir}/android/tools" includes="*/libwinpthread-1.dll" />
       <fileset dir="${lib.dir}/android/tools" includes="*/lib64/*" />
     </copy>
@@ -175,8 +174,7 @@
        ===================================================================== -->
   <target name="CheckPlayApp"
           depends="GenPlayAppSrcZip,BuildServer">
-    <property name="ext" value="apk"/>
-    <uptodate property="PlayApp.uptodate" targetfile="${public.build.dir}/MIT AI2 Companion.${ext}">
+    <uptodate property="PlayApp.uptodate" targetfile="${public.build.dir}/MIT AI2 Companion.apk">
       <srcfiles file="${local.build.dir}/aiplayapp.zip"/>
       <srcfiles dir="${run.lib.dir}" includes="*.jar"/>
     </uptodate>
@@ -188,11 +186,6 @@
   <target name="PlayApp"
           depends="CheckPlayApp"
           unless="PlayApp.uptodate">
-    <condition property="ext" value="apk">
-      <not>
-        <isset property="ext"/>
-      </not>
-    </condition>
     <java classname="com.google.appinventor.buildserver.Main" fork="true" failonerror="true">
       <classpath>
         <fileset dir="${run.lib.dir}" includes="*.jar" />
@@ -200,7 +193,7 @@
       <sysproperty key="file.encoding" value="UTF-8" />
       <jvmarg value="-Djava.awt.headless=true" />
       <arg value="--childProcessRamMb" />
-      <arg value="2048" />
+      <arg value="1024" />
       <arg value="--inputZipFile" />
       <arg value="${local.build.dir}/aiplayapp.zip" />
       <arg value="--userName" />
@@ -210,14 +203,7 @@
       <arg value="${public.build.dir}" />
       <arg value="--dexCacheDir" />
       <arg value="${public.build.dir}/dexCache" />
-      <arg value="--ext" />
-      <arg value="${ext}" />
     </java>
-  </target>
-
-  <target name="PlayAppAab">
-    <property name="ext" value="aab"/>
-    <antcall target="PlayApp"/>
   </target>
 
   <target name="CheckPlayAppExtras">
@@ -231,7 +217,7 @@
        PlayAppExtras: builds ../build/buildserver/MITAI2Companion-full.apk
        ===================================================================== -->
   <target name="PlayAppExtras"
-          depends="CheckPlayAppExtras,PlayApp"
+          depends="CheckPlayAppExtras"
           unless="PlayAppExtras.uptodate">
     <java classname="com.google.appinventor.buildserver.Main" fork="true" failonerror="true">
       <classpath>
@@ -240,7 +226,7 @@
       <sysproperty key="file.encoding" value="UTF-8" />
       <jvmarg value="-Djava.awt.headless=true" />
       <arg value="--childProcessRamMb" />
-      <arg value="2048" />
+      <arg value="1024" />
       <arg value="--inputZipFile" />
       <arg value="${local.build.dir}/aiplayapp.zip" />
       <arg value="--userName" />
@@ -269,7 +255,7 @@
        Emulator: builds ../build/buildserver/Emulator.apk
        ===================================================================== -->
   <target name="Emulator"
-          depends="CheckEmulator,PlayAppExtras"
+          depends="CheckEmulator"
           unless="Emulator.uptodate">
     <java classname="com.google.appinventor.buildserver.Main" fork="true" failonerror="true">
       <classpath>
@@ -278,7 +264,7 @@
       <sysproperty key="file.encoding" value="UTF-8" />
       <jvmarg value="-Djava.awt.headless=true" />
       <arg value="--childProcessRamMb" />
-      <arg value="2048" />
+      <arg value="1024" />
       <arg value="--inputZipFile" />
       <arg value="${local.build.dir}/aiplayapp.zip" />
       <arg value="--userName" />
@@ -371,19 +357,11 @@
     <fileset dir="${run.lib.dir}" includes="*.jar"/>
     <pathelement location="${build.dir}/common/CommonTestUtils.jar" />
     <pathelement location="${build.dir}/components/AndroidRuntime.jar"/>
-    <fileset dir="${build.dir}/components/deps" includes="*.jar" />
     <pathelement location="${lib.dir}/kawa/kawa-1.11-modified.jar" />
     <pathelement location="${lib.dir}/guava/guava-14.0.1.jar" />
     <pathelement location="${lib.dir}/commons-io/commons-io-2.0.1.jar" />
     <pathelement location="${lib.dir}/json/json.jar" />
     <pathelement location="${lib.dir}/junit/junit-4.8.2.jar" />
-    <pathelement location="${lib.dir}/junit4/tl4j-junit4-1.1.3.jar" />
-    <pathelement location="${lib.dir}/bouncycastle/bcprov-jdk15on-149.jar" />
-    <pathelement location="${lib.dir}/powermock/cglib-nodep-2.2.jar" />
-    <pathelement location="${lib.dir}/powermock/easymock-3.0.jar" />
-    <pathelement location="${lib.dir}/powermock/javassist-3.18.0-GA.jar" />
-    <pathelement location="${lib.dir}/powermock/objenesis-1.2.jar" />
-    <pathelement location="${lib.dir}/powermock/powermock-easymock-1.4.10-full.jar" />
   </path>
 
   <path id="BuildServerTests.path">

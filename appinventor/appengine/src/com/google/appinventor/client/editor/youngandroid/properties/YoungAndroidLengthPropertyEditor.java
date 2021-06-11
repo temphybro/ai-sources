@@ -92,7 +92,6 @@ public class YoungAndroidLengthPropertyEditor extends AdditionalChoicePropertyEd
         // Clear the custom and percent length fields.
         customLengthField.setText("");
         percentLengthField.setText("");
-        setOkButtonEnabled(true);
       }
     });
     fillParentRadioButton.addValueChangeHandler(new ValueChangeHandler() {
@@ -101,7 +100,6 @@ public class YoungAndroidLengthPropertyEditor extends AdditionalChoicePropertyEd
         // Clear the custom and percent length fields.
         customLengthField.setText("");
         percentLengthField.setText("");
-        setOkButtonEnabled(true);
       }
     });
     customLengthField.addClickHandler(new ClickHandler() {
@@ -112,7 +110,6 @@ public class YoungAndroidLengthPropertyEditor extends AdditionalChoicePropertyEd
         if (!customLengthRadioButton.isChecked()) {
           customLengthRadioButton.setChecked(true);
           percentLengthField.setText("");
-          setOkButtonEnabled(true);
         }
       }
     });
@@ -125,7 +122,6 @@ public class YoungAndroidLengthPropertyEditor extends AdditionalChoicePropertyEd
         if (!percentfillRadioButton.isChecked()) {
           percentfillRadioButton.setChecked(true);
           customLengthField.setText("");
-          setOkButtonEnabled(true);
         }
       }
     });
@@ -138,15 +134,7 @@ public class YoungAndroidLengthPropertyEditor extends AdditionalChoicePropertyEd
     super.updateValue();
 
     String propertyValue = property.getValue();
-    if (propertyValue.isEmpty() && isMultipleValues()) {  // Multiselect collision
-      automaticRadioButton.setValue(false);
-      fillParentRadioButton.setValue(false);
-      percentfillRadioButton.setValue(false);
-      percentLengthField.setValue("");
-      customLengthRadioButton.setValue(false);
-      customLengthField.setValue("");
-      setOkButtonEnabled(false);
-    } else if (propertyValue.equals(CONST_AUTOMATIC)) {
+    if (propertyValue.equals(CONST_AUTOMATIC)) {
       automaticRadioButton.setChecked(true);
     } else if (propertyValue.equals(CONST_FILL_PARENT)) {
       fillParentRadioButton.setChecked(true);
@@ -166,9 +154,7 @@ public class YoungAndroidLengthPropertyEditor extends AdditionalChoicePropertyEd
   @Override
   protected String getPropertyValueSummary() {
     String lengthHint = property.getValue();
-    if (lengthHint.isEmpty() && isMultipleValues()) {
-      return MESSAGES.multipleValues();
-    } else if (lengthHint.equals(CONST_AUTOMATIC)) {
+    if (lengthHint.equals(CONST_AUTOMATIC)) {
       return MESSAGES.automaticCaption();
     } else if (lengthHint.equals(CONST_FILL_PARENT)) {
       return MESSAGES.fillParentCaption();
@@ -185,7 +171,6 @@ public class YoungAndroidLengthPropertyEditor extends AdditionalChoicePropertyEd
 
   @Override
   protected boolean okAction() {
-    setMultipleValues(false);
     if (automaticRadioButton.isChecked()) {
       property.setValue(CONST_AUTOMATIC);
     } else if (fillParentRadioButton.isChecked()) {
@@ -209,7 +194,7 @@ public class YoungAndroidLengthPropertyEditor extends AdditionalChoicePropertyEd
         return false;
       }
       property.setValue(text);
-    } else if (percentfillRadioButton.getValue()) {         // Percent field!
+    } else {                    // Percent field!
       String text = percentLengthField.getText();
       boolean success = false;
       try {

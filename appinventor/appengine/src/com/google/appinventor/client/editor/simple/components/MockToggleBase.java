@@ -1,5 +1,5 @@
 // -*- mode: java; c-basic-offset: 2; -*-
-// Copyright 2016-2020 MIT, All rights reserved
+// Copyright 2016-2018 MIT, All rights reserved
 // Released under the Apache License, Version 2.0
 // http://www.apache.org/licenses/LICENSE-2.0
 
@@ -7,7 +7,6 @@ package com.google.appinventor.client.editor.simple.components;
 
 import com.google.appinventor.client.editor.simple.SimpleEditor;
 import com.google.gwt.resources.client.ImageResource;
-import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.Widget;
 
 import static com.google.appinventor.client.Ode.MESSAGES;
@@ -21,32 +20,17 @@ abstract class MockToggleBase<T extends Widget> extends MockWrapper {
 
   // Set toggle widget in child classes
   protected T toggleWidget;
-  protected boolean enabled;
 
   public MockToggleBase(SimpleEditor editor, String type, ImageResource icon) {
     super(editor, type, icon);
   }
 
-  protected final Widget createClonedWidget() {
-    // We override updatePreferredSize directly, so this shouldn't be called.
-    throw new UnsupportedOperationException();
-  }
+  abstract protected Widget createClonedWidget();
 
   @Override
   public void onCreateFromPalette() {
     // Change toggle caption to component name
     changeProperty(PROPERTY_NAME_TEXT, MESSAGES.textPropertyValue(getName()));
-  }
-
-  @Override
-  int getHeightHint() {
-    int hint = super.getHeightHint();
-    if (hint == MockVisibleComponent.LENGTH_PREFERRED) {
-      float height = Float.parseFloat(getPropertyValue(MockVisibleComponent.PROPERTY_NAME_FONTSIZE));
-      return Math.round(height);
-    } else {
-      return hint;
-    }
   }
 
   /*
@@ -63,7 +47,6 @@ abstract class MockToggleBase<T extends Widget> extends MockWrapper {
    * Sets the toggle's Enabled property to a new value.
    */
   private void setEnabledProperty(String text) {
-    enabled = Boolean.parseBoolean(text);
     MockComponentsUtil.setEnabled(this, text);
   }
 
@@ -81,6 +64,17 @@ abstract class MockToggleBase<T extends Widget> extends MockWrapper {
   private void setFontItalicProperty(String text) {
     MockComponentsUtil.setWidgetFontItalic(toggleWidget, text);
     updatePreferredSize();
+  }
+
+  @Override
+  int getHeightHint() {
+    int hint = super.getHeightHint();
+    if (hint == MockVisibleComponent.LENGTH_PREFERRED) {
+      float height = Float.parseFloat(getPropertyValue(MockVisibleComponent.PROPERTY_NAME_FONTSIZE));
+      return Math.round(height);
+    } else {
+      return hint;
+    }
   }
 
   /*
@@ -141,10 +135,5 @@ abstract class MockToggleBase<T extends Widget> extends MockWrapper {
     } else if (propertyName.equals(PROPERTY_NAME_TEXTCOLOR)) {
       setTextColorProperty(newValue);
     }
-  }
-
-  protected void updatePreferredSize() {
-    preferredSize = MockComponentsUtil
-        .getPreferredSizeOfElement(DOM.clone(toggleWidget.getElement(), true));
   }
 }

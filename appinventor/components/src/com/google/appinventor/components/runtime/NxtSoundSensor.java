@@ -20,8 +20,6 @@ import com.google.appinventor.components.common.YaVersion;
 import android.os.Handler;
 
 /**
- * ![NXT component icon](images/legoMindstormsNxt.png)
- *
  * A component that provides a high-level interface to a sound sensor on a LEGO
  * MINDSTORMS NXT robot.
  *
@@ -107,7 +105,6 @@ public class NxtSoundSensor extends LegoMindstormsNxtSensor implements Deleteabl
 
   /**
    * Specifies the sensor port that the sensor is connected to.
-   * **Must be set in the Designer.**
    */
   @DesignerProperty(editorType = PropertyTypeConstants.PROPERTY_TYPE_LEGO_NXT_SENSOR_PORT,
       defaultValue = DEFAULT_SENSOR_PORT)

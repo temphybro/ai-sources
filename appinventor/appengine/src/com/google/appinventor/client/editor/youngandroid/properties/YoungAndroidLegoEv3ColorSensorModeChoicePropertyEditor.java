@@ -7,8 +7,6 @@ package com.google.appinventor.client.editor.youngandroid.properties;
 
 import com.google.appinventor.client.widgets.properties.ChoicePropertyEditor;
 
-import static com.google.appinventor.client.Ode.MESSAGES;
-
 /**
  * Property editor for choosing an sensor port for a sensor on a Lego Mindstorms
  * EV3 robot.
@@ -20,9 +18,9 @@ public class YoungAndroidLegoEv3ColorSensorModeChoicePropertyEditor extends Choi
 
   // Lego Mindstorms EV3 sensor port choices
   private static final Choice[] modes = new Choice[] {
-    new Choice(MESSAGES.reflectedValues(), "reflected"),
-    new Choice(MESSAGES.ambientValues(), "ambient"),
-    new Choice(MESSAGES.colorValues(), "color")
+    new Choice("reflected", "reflected"),
+    new Choice("ambient", "ambient"),
+    new Choice("color", "color")
   };
 
   public YoungAndroidLegoEv3ColorSensorModeChoicePropertyEditor() {

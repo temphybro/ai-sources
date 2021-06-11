@@ -1,5 +1,5 @@
 // -*- mode: java; c-basic-offset: 2; -*-
-// Copyright © 2016-2020 Massachusetts Institute of Technology, All rights reserved.
+// Copyright © 2016-2017 Massachusetts Institute of Technology, All rights reserved.
 // Released under the Apache License, Version 2.0
 // http://www.apache.org/licenses/LICENSE-2.0
 
@@ -16,6 +16,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.view.ViewCompat;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -24,7 +25,6 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.animation.Animation;
 import android.widget.RelativeLayout;
-import androidx.core.view.ViewCompat;
 import com.caverock.androidsvg.SVG;
 import com.caverock.androidsvg.SVGParseException;
 import com.google.appinventor.components.common.ComponentConstants;
@@ -36,7 +36,6 @@ import com.google.appinventor.components.runtime.util.MapFactory.MapCircle;
 import com.google.appinventor.components.runtime.util.MapFactory.MapController;
 import com.google.appinventor.components.runtime.util.MapFactory.MapEventListener;
 import com.google.appinventor.components.runtime.util.MapFactory.MapFeature;
-import com.google.appinventor.components.runtime.util.MapFactory.MapFeatureCollection;
 import com.google.appinventor.components.runtime.util.MapFactory.MapLineString;
 import com.google.appinventor.components.runtime.util.MapFactory.MapMarker;
 import com.google.appinventor.components.runtime.util.MapFactory.MapPolygon;
@@ -44,17 +43,6 @@ import com.google.appinventor.components.runtime.util.MapFactory.MapRectangle;
 import com.google.appinventor.components.runtime.util.MapFactory.MapScaleUnits;
 import com.google.appinventor.components.runtime.util.MapFactory.MapType;
 import com.google.appinventor.components.runtime.view.ZoomControlView;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import org.osmdroid.api.IGeoPoint;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapListener;
@@ -85,6 +73,18 @@ import org.osmdroid.views.overlay.mylocation.IMyLocationConsumer;
 import org.osmdroid.views.overlay.mylocation.IMyLocationProvider;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 class NativeOpenStreetMapController implements MapController, MapListener {
   /* copied from SVG */
   private static final long SPECIFIED_FILL                  =    1;
@@ -114,18 +114,6 @@ class NativeOpenStreetMapController implements MapController, MapListener {
   private ZoomControlView zoomControls = null;
   private float lastAzimuth = Float.NaN;
   private ScaleBarOverlay scaleBar;
-
-  /**
-   * This set stores feature collections that are hidden (Visible = False).
-   */
-  private Set<MapFeatureCollection> hiddenFeatureCollections = new HashSet<>();
-
-  /**
-   * This set stores the features contained within feature collections captured by
-   * {@link #hiddenFeatureCollections}. This is used to test whether the features should be
-   * displayed when toggling their Visible property.
-   */
-  private Set<MapFeature> hiddenFeatures = new HashSet<>();
 
   private static final float[] ANCHOR_HORIZONTAL = { Float.NaN, 0.0f, 1.0f, 0.5f };
   private static final float[] ANCHOR_VERTICAL = { Float.NaN, 0.0f, 0.5f, 1.0f };
@@ -693,8 +681,10 @@ class NativeOpenStreetMapController implements MapController, MapListener {
           }
           ((MapRectangle) component).updateBounds(north, west, south, east);
         } else {
-          ((MapPolygon) component).updatePoints(((MultiPolygon) polygon).getMultiPoints());
-          ((MapPolygon) component).updateHolePoints(((MultiPolygon) polygon).getMultiHoles());
+          ((MapPolygon) component).updatePoints(Collections.singletonList(polygon.getPoints()));
+          List<List<GeoPoint>> holes = new ArrayList<List<GeoPoint>>();
+          holes.addAll(polygon.getHoles());
+          ((MapPolygon) component).updateHolePoints(Collections.singletonList(holes));
         }
         for (MapEventListener listener : eventListeners) {
           listener.onFeatureStopDrag(component);
@@ -997,7 +987,6 @@ class NativeOpenStreetMapController implements MapController, MapListener {
 
       @Override
       public void onSuccess(BitmapDrawable result) {
-        result.setAlpha((int) Math.round(aiMarker.FillOpacity() * 255.0f));
         callback.onSuccess(result);
       }
     });
@@ -1050,7 +1039,6 @@ class NativeOpenStreetMapController implements MapController, MapListener {
         path.baseStyle.stroke = new SVG.Colour(strokePaint.getColor());
         path.baseStyle.strokeOpacity = strokePaint.getAlpha()/255.0f;
         path.baseStyle.strokeWidth = strokeWidth;
-        path.baseStyle.specifiedFlags = 0x3d;
         if (path.style != null) {
           if ((path.style.specifiedFlags & SPECIFIED_FILL) == 0) {
             path.style.fill = new SVG.Colour(fillPaint.getColor());
@@ -1159,9 +1147,7 @@ class NativeOpenStreetMapController implements MapController, MapListener {
 
   @Override
   public void showFeature(MapFeature feature) {
-    if (!hiddenFeatures.contains(feature)) {
-      showOverlay(featureOverlays.get(feature));
-    }
+    showOverlay(featureOverlays.get(feature));
   }
 
   protected void showOverlay(OverlayWithIW overlay) {
@@ -1183,35 +1169,6 @@ class NativeOpenStreetMapController implements MapController, MapListener {
   public boolean isFeatureVisible(MapFeature feature) {
     OverlayWithIW overlay = featureOverlays.get(feature);
     return overlay != null && view.getOverlayManager().contains(overlay);
-  }
-
-  @Override
-  public boolean isFeatureCollectionVisible(MapFeatureCollection collection) {
-    return !hiddenFeatureCollections.contains(collection);
-  }
-
-  @Override
-  public void setFeatureCollectionVisible(MapFeatureCollection collection, boolean visible) {
-    if ((!visible && hiddenFeatureCollections.contains(collection))
-        || (visible && !hiddenFeatureCollections.contains(collection))) {
-      // Nothing to do
-      return;
-    }
-    if (visible) {
-      hiddenFeatureCollections.remove(collection);
-      for (MapFeature feature : collection) {
-        hiddenFeatures.remove(feature);
-        if (feature.Visible()) {
-          showFeature(feature);
-        }
-      }
-    } else {
-      hiddenFeatureCollections.add(collection);
-      for (MapFeature feature : collection) {
-        hiddenFeatures.add(feature);
-        hideFeature(feature);
-      }
-    }
   }
 
   @Override
@@ -1340,14 +1297,6 @@ class NativeOpenStreetMapController implements MapController, MapListener {
       }
     }
 
-    public List<List<GeoPoint>> getMultiPoints() {
-      List<List<GeoPoint>> result = new ArrayList<>();
-      for (Polygon p : children) {
-        result.add(p.getPoints());
-      }
-      return result;
-    }
-
     public void setMultiPoints(List<List<GeoPoint>> points) {
       Iterator<Polygon> polygonIterator = children.iterator();
       Iterator<List<GeoPoint>> pointIterator = points.iterator();
@@ -1370,15 +1319,6 @@ class NativeOpenStreetMapController implements MapController, MapListener {
         p.setOnDragListener(dragListener);
         children.add(p);
       }
-    }
-
-    @SuppressWarnings("unchecked")  // upcasting nested ArrayList to List
-    public List<List<List<GeoPoint>>> getMultiHoles() {
-      List<List<List<GeoPoint>>> result = new ArrayList<>();
-      for (Polygon p : children) {
-        result.add((List) p.getHoles());
-      }
-      return result;
     }
 
     public void setMultiHoles(List<List<List<GeoPoint>>> holes) {

@@ -30,25 +30,25 @@ public interface ProjectManagerEventListener {
   void onProjectAdded(Project project);
 
   /**
-   * Invoked after a project was removed from trash list.
+   * Invoked after a project was deleted and added to the ProjectManager
    *
-   * @param project  project restored
+   * @param project  project added to trash list
    */
-  void onTrashProjectRestored(Project project);
+   void onDeletedProjectAdded(Project project);
 
   /**
-   * Invoked after a project was added to trash list.
-   *
-   * @param project  project trashed
-   */
-  void onProjectTrashed(Project project);
-
-  /**
-   * Invoked after a project was deleted permanently.
+   * Invoked after a project was removed (either closed or deleted).
    *
    * @param project  project removed
    */
-  void onProjectDeleted(Project project);
+  void onProjectRemoved(Project project);
+
+  /**
+   * Invoked after a project was removed from trash list.
+   *
+   * @param project  project removed
+   */
+  void onDeletedProjectRemoved(Project project);
 
   /**
    * Invoked after all projects have been loaded by ProjectManager
@@ -56,4 +56,9 @@ public interface ProjectManagerEventListener {
    */
   void onProjectsLoaded();
 
+  /**
+   * Invoked after a project is published so we can change its button to "Update"
+   *
+   */
+  void onProjectPublishedOrUnpublished();
 }

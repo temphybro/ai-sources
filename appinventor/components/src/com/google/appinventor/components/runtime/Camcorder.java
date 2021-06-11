@@ -28,12 +28,7 @@ import java.io.File;
 import java.util.Date;
 
 /**
- * ![Camcorder icon](images/camcorder.png)
- *
- * A component to record a video using the device's camcorder. After the video is recorded, the
- * name of the file on the phone containing the clip is available as an argument to the
- * {@link #AfterRecording(String)} event. The file name can be used, for example, to set the source
- * property of a {@link VideoPlayer} component.
+ * Camcorder provides access to the phone's camcorder
  */
 
 @DesignerComponent(version = YaVersion.CAMCORDER_COMPONENT_VERSION,
@@ -72,7 +67,7 @@ public class Camcorder extends AndroidNonvisibleComponent
   }
 
   /**
-   * Records a video, then raises the {@link #AfterRecording(String)} event.
+   * Records a video, then raises the AfterRecoding event.
    */
   @SimpleFunction
   public void RecordVideo() {
@@ -156,7 +151,7 @@ public class Camcorder extends AndroidNonvisibleComponent
 
   /**
    * Indicates that a video was recorded with the camera and provides the path to
-   * the stored video.
+   * the stored picture.
    */
   @SimpleEvent
   public void AfterRecording(String clip) {

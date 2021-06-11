@@ -164,7 +164,7 @@ public class MockRectangle extends MockPolygonBase {
     if (!rect.clickHandler) {
       while (el.lastChild) el.removeChild(el.lastChild);  // clear the div
       rect.clickHandler = function (e) {
-        this.@com.google.appinventor.client.editor.simple.components.MockMapFeatureBase::select(*)(e);
+        this.@com.google.appinventor.client.editor.simple.components.MockMapFeatureBase::select()();
         if (e.originalEvent) e.originalEvent.stopPropagation();
       };
       rect.dragHandler = function () {
@@ -184,10 +184,6 @@ public class MockRectangle extends MockPolygonBase {
     this.@com.google.appinventor.client.editor.simple.components.MockMapFeatureBase::setNativeTooltip(*)(
       this.@com.google.appinventor.client.editor.simple.components.MockPolygon::getTooltip()()
     );
-    var isVisible = this.@com.google.appinventor.client.editor.simple.components.MockMapFeatureBase::getVisibleProperty()();
-    if (!isVisible) {
-      map.removeLayer(rect);
-    }
   }-*/;
 
   private native void setBounds(double south, double west, double north, double east)/*-{

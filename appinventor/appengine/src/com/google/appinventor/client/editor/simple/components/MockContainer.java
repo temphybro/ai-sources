@@ -130,7 +130,7 @@ public abstract class MockContainer extends MockVisibleComponent implements Drop
     List<MockComponent> visibleChildren = getShowingVisibleChildren();
 
     int beforeActualIndex;
-    if ((beforeVisibleIndex == -1) || (beforeVisibleIndex >= visibleChildren.size())) {
+    if ((beforeVisibleIndex == -1) || (beforeVisibleIndex == visibleChildren.size())) {
       // Insert after last visible component
       if (visibleChildren.size() == 0) {
         beforeActualIndex = 0;
@@ -263,10 +263,6 @@ public abstract class MockContainer extends MockVisibleComponent implements Drop
     return false;
   }
 
-  public boolean willAcceptComponentType(String type) {
-    return !MockCanvas.ACCEPTABLE_TYPES.contains(type) && !MockMap.ACCEPTABLE_TYPES.contains(type);
-  }
-
   // TODO(user): Draw a colored border around the edges of the container
   //                    area while an eligible component is hovering over it.
   @Override
@@ -304,7 +300,7 @@ public abstract class MockContainer extends MockVisibleComponent implements Drop
     }
 
     if (layout.onDrop(sourceComponent, x, y, offsetX, offsetY)) {
-      sourceComponent.select(null);
+      sourceComponent.select();
     }
   }
 
@@ -320,17 +316,11 @@ public abstract class MockContainer extends MockVisibleComponent implements Drop
   }
 
   @Override
-  public void delete() {
-    // Traverse list backwards to make removal easier
-    for (int i = children.size() - 1; i >= 0; --i) {
-      MockComponent child = children.get(i);
-
-      // Manually delete child component to ensure that it is
-      // completely removed from the Designer.
-      child.delete();
+  public void onRemoved()
+  {
+    for (MockComponent child : children) {
+      getForm().fireComponentRemoved(child, true);
     }
-
-    super.delete();
   }
 
   @Override

@@ -1,12 +1,14 @@
 // -*- mode: java; c-basic-offset: 2; -*-
 // Copyright 2009-2011 Google, All Rights reserved
-// Copyright 2011-2020 MIT, All rights reserved
+// Copyright 2011-2012 MIT, All rights reserved
 // Released under the Apache License, Version 2.0
 // http://www.apache.org/licenses/LICENSE-2.0
 
 package com.google.appinventor.client.wizards;
 
 import static com.google.appinventor.client.Ode.MESSAGES;
+
+import java.io.File;
 
 import com.google.appinventor.client.ErrorReporter;
 import com.google.appinventor.client.Ode;
@@ -22,17 +24,25 @@ import com.google.appinventor.shared.rpc.project.ProjectNode;
 import com.google.appinventor.shared.rpc.project.youngandroid.YoungAndroidAssetNode;
 import com.google.appinventor.shared.rpc.project.youngandroid.YoungAndroidAssetsFolder;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.FileUpload;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.DialogBox;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.FlowPanel;
-import java.util.Collection;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
+import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.Label;
 
 
 /**
@@ -43,7 +53,7 @@ public class FileUploadWizard extends Wizard {
   /**
    * Interface for callback to execute after a file is uploaded.
    */
-  public interface FileUploadedCallback {
+  public static interface FileUploadedCallback {
     /**
      * Will be invoked after a file is uploaded.
      *
@@ -68,27 +78,12 @@ public class FileUploadWizard extends Wizard {
    * @param folderNode the upload destination folder
    * @param fileUploadedCallback callback to be executed after upload
    */
-  public FileUploadWizard(FolderNode folderNode, FileUploadedCallback fileUploadedCallback) {
-    this(folderNode, null, fileUploadedCallback);
-  }
-
-  /**
-   * Creates a new file upload wizard.
-   *
-   * @param folderNode the upload destination folder
-   * @param acceptableTypes a collection of acceptable types, or null.
-   * @param fileUploadedCallback callback to be executed after upload
-   */
   public FileUploadWizard(final FolderNode folderNode,
-      final Collection<String> acceptableTypes,
       final FileUploadedCallback fileUploadedCallback) {
     super(MESSAGES.fileUploadWizardCaption(), true, false);
 
     // Initialize UI
     final FileUpload upload = new FileUpload();
-    if (acceptableTypes != null) {
-      upload.getElement().setAttribute("accept", String.join(",", acceptableTypes));
-    }
     upload.setName(ServerLayout.UPLOAD_FILE_FORM_ELEMENT);
     setStylePrimaryName("ode-DialogBox");
     VerticalPanel panel = new VerticalPanel();
@@ -105,11 +100,11 @@ public class FileUploadWizard extends Wizard {
           final String filename = makeValidFilename(uploadFilename);
           if(!TextValidators.isValidCharFilename(filename)){
             createErrorDialog(MESSAGES.malformedFilenameTitle(), MESSAGES.malformedFilename(),
-              Error.NOFILESELECETED, folderNode, acceptableTypes, fileUploadedCallback);
+              Error.NOFILESELECETED, folderNode, fileUploadedCallback);
             return;
           } else if (!TextValidators.isValidLengthFilename(filename)){
             createErrorDialog(MESSAGES.filenameBadSizeTitle(), MESSAGES.filenameBadSize(),
-              Error.FILENAMEBADSIZE, folderNode, acceptableTypes, fileUploadedCallback);
+              Error.FILENAMEBADSIZE, folderNode, fileUploadedCallback);
             return;
           }
           int nameLength = uploadFilename.length();
@@ -117,7 +112,7 @@ public class FileUploadWizard extends Wizard {
 
           if (".aia".equals(fileEnd.toLowerCase())) {
             createErrorDialog(MESSAGES.aiaMediaAssetTitle(), MESSAGES.aiaMediaAsset(),
-              Error.AIAMEDIAASSET, folderNode, acceptableTypes, fileUploadedCallback);
+              Error.AIAMEDIAASSET, folderNode, fileUploadedCallback);
             return;
           }
           String fn = conflictingExistingFile(folderNode, filename);
@@ -177,7 +172,7 @@ public class FileUploadWizard extends Wizard {
           });
         } else {
           createErrorDialog(MESSAGES.noFileSelectedTitle(), MESSAGES.noFileSelected(),
-              Error.NOFILESELECETED, folderNode, acceptableTypes, fileUploadedCallback);
+              Error.NOFILESELECETED, folderNode, fileUploadedCallback);
         }
       }
     });
@@ -249,8 +244,7 @@ public class FileUploadWizard extends Wizard {
   }
 
   private void createErrorDialog(String title, String body, Error e,
-      final FolderNode folderNode, final Collection<String> acceptableTypes,
-      final FileUploadedCallback fileUploadedCallback) {
+      final FolderNode folderNode, final FileUploadedCallback fileUploadedCallback) {
     final DialogBox dialogBox = new DialogBox(false,true);
     HTML message;
     dialogBox.setStylePrimaryName("ode-DialogBox");
@@ -265,7 +259,7 @@ public class FileUploadWizard extends Wizard {
     ok.addClickListener(new ClickListener() {
       public void onClick(Widget sender) {
         dialogBox.hide();
-        new FileUploadWizard(folderNode, acceptableTypes, fileUploadedCallback).show();
+        new FileUploadWizard(folderNode, fileUploadedCallback).show();
       }
     });
     holder.add(ok);

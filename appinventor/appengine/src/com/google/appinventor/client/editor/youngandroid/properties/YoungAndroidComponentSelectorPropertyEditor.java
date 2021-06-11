@@ -7,18 +7,16 @@
 package com.google.appinventor.client.editor.youngandroid.properties;
 
 import static com.google.appinventor.client.Ode.MESSAGES;
-
 import com.google.appinventor.client.editor.simple.components.FormChangeListener;
 import com.google.appinventor.client.editor.simple.components.MockComponent;
 import com.google.appinventor.client.editor.youngandroid.YaFormEditor;
 import com.google.appinventor.client.widgets.properties.AdditionalChoicePropertyEditor;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
+
 import java.util.Set;
 
 /**
@@ -65,12 +63,6 @@ public final class YoungAndroidComponentSelectorPropertyEditor
     componentsList = new ListBox();
     componentsList.setVisibleItemCount(10);
     componentsList.setWidth("100%");
-    componentsList.addChangeHandler(new ChangeHandler() {
-      @Override
-      public void onChange(ChangeEvent event) {
-        setOkButtonEnabled(true);
-      }
-    });
     selectorPanel.add(componentsList);
     selectorPanel.setWidth("100%");
 
@@ -141,20 +133,13 @@ public final class YoungAndroidComponentSelectorPropertyEditor
 
   @Override
   protected void openAdditionalChoiceDialog() {
-    if (!isMultipleValues()) {
-      choices.selectValue(property.getValue());
-    } else {
-      setOkButtonEnabled(false);
-    }
+    choices.selectValue(property.getValue());
     super.openAdditionalChoiceDialog();
     componentsList.setFocus(true);
   }
 
   @Override
   protected String getPropertyValueSummary() {
-    if (isMultipleValues()) {
-      return MESSAGES.multipleValues();
-    }
     String value = property.getValue();
     if (choices.containsValue(value)) {
       return choices.getDisplayItemForValue(value);
@@ -169,9 +154,7 @@ public final class YoungAndroidComponentSelectorPropertyEditor
       Window.alert(MESSAGES.noComponentSelected());
       return false;
     }
-    boolean multiple = isMultipleValues();
-    setMultipleValues(false);
-    property.setValue(choices.getValueAtIndex(selected), multiple);
+    property.setValue(choices.getValueAtIndex(selected));
     return true;
   }
 

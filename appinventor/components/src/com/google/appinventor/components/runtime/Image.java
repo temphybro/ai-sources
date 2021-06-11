@@ -1,6 +1,6 @@
 // -*- mode: java; c-basic-offset: 2; -*-
 // Copyright 2009-2011 Google, All Rights reserved
-// Copyright 2011-2020 MIT, All rights reserved
+// Copyright 2011-2012 MIT, All rights reserved
 // Released under the Apache License, Version 2.0
 // http://www.apache.org/licenses/LICENSE-2.0
 
@@ -10,7 +10,6 @@ import android.Manifest;
 import com.google.appinventor.components.annotations.DesignerComponent;
 import com.google.appinventor.components.annotations.DesignerProperty;
 import com.google.appinventor.components.annotations.PropertyCategory;
-import com.google.appinventor.components.annotations.SimpleEvent;
 import com.google.appinventor.components.annotations.SimpleFunction;
 import com.google.appinventor.components.annotations.SimpleObject;
 import com.google.appinventor.components.annotations.SimpleProperty;
@@ -18,7 +17,6 @@ import com.google.appinventor.components.annotations.UsesPermissions;
 import com.google.appinventor.components.common.ComponentCategory;
 import com.google.appinventor.components.common.PropertyTypeConstants;
 import com.google.appinventor.components.common.YaVersion;
-import com.google.appinventor.components.runtime.EventDispatcher;
 import com.google.appinventor.components.runtime.errors.IllegalArgumentError;
 import com.google.appinventor.components.runtime.util.AnimationUtil;
 import com.google.appinventor.components.runtime.util.ErrorMessages;
@@ -30,16 +28,13 @@ import com.google.appinventor.components.runtime.util.ViewUtil;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.ImageView;
 
 import java.io.IOException;
 
 /**
- * Component for displaying images and basic animations.
+ * Component for displaying images and animations.
  *
- * The picture to display, and other aspects of the Image's appearance, can be specified in the
- * Designer or in the Blocks Editor.
  */
 @DesignerComponent(version = YaVersion.IMAGE_COMPONENT_VERSION,
     category = ComponentCategory.USERINTERFACE,
@@ -58,8 +53,6 @@ public final class Image extends AndroidViewComponent {
   private double rotationAngle = 0.0;
 
   private int scalingMode = Component.SCALING_SCALE_PROPORTIONALLY;
-  
-  private boolean clickable = false;
 
   /**
    * Creates a new Image component.
@@ -88,34 +81,6 @@ public final class Image extends AndroidViewComponent {
     return view;
   }
 
-  @SimpleEvent(description = "An event that occurs when an image is clicked.")
-  public void Click() {
-    EventDispatcher.dispatchEvent(this, "Click");
-  }
-
-  @DesignerProperty(editorType = PropertyTypeConstants.PROPERTY_TYPE_BOOLEAN,
-    defaultValue = "False")
-  @SimpleProperty(description = "Specifies whether the image should be clickable or not.")
-  public void Clickable(boolean clickable) {
-    this.clickable = clickable;
-    view.setClickable(this.clickable);
-    if (this.clickable) {
-      view.setOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-          Click();
-        }
-      });
-    } else {
-      view.setOnClickListener(null);
-    }
-  }
-
-  @SimpleProperty(description = "Specifies whether the image should be clickable or not.", category = PropertyCategory.APPEARANCE)
-  public boolean Clickable() {
-    return this.clickable;
-  }
-
   /**
    * Returns the path of the image's picture.
    *
@@ -128,9 +93,8 @@ public final class Image extends AndroidViewComponent {
   }
 
   /**
-   * Specifies the path of the `Image`'s `Picture`.
+   * Specifies the path of the image's picture.
    *
-   * @internaldoc
    * <p/>See {@link MediaUtil#determineMediaSource} for information about what
    * a path can be.
    *
@@ -140,8 +104,8 @@ public final class Image extends AndroidViewComponent {
       defaultValue = "")
   @SimpleProperty
   public void Picture(final String path) {
-    if (MediaUtil.isExternalFile(container.$context(), path)
-        && container.$form().isDeniedPermission(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+    if (MediaUtil.isExternalFile(path) &&
+        container.$form().isDeniedPermission(Manifest.permission.READ_EXTERNAL_STORAGE)) {
       container.$form().askPermission(Manifest.permission.READ_EXTERNAL_STORAGE,
           new PermissionResultHandler() {
             @Override
@@ -169,10 +133,11 @@ public final class Image extends AndroidViewComponent {
   }
 
   /**
-   * Specifies the angle, in degrees, at which the image picture appears rotated.
+   * Specifies the angle at which the image picture appears rotated.
    *
    * @param rotated  the rotation angle
    */
+
   @DesignerProperty(editorType = PropertyTypeConstants.PROPERTY_TYPE_FLOAT,
       defaultValue = "0.0")
   @SimpleProperty
@@ -210,9 +175,7 @@ public final class Image extends AndroidViewComponent {
   }
 
   /**
-   * This is a limited form of animation that can attach a small number of motion types to images.
-   * The allowable motions are `ScrollRightSlow`, `ScrollRight`, `ScrollRightFast`,
-   * `ScrollLeftSlow`, `ScrollLeft`, `ScrollLeftFast`, and `Stop`.
+   * Animation property setter method.
    *
    * @see AnimationUtil
    *
@@ -251,9 +214,6 @@ public final class Image extends AndroidViewComponent {
     scalingMode = mode;
   }
 
-  /**
-   * @suppressdoc
-   */
   @SimpleProperty
   public int Scaling() {
     return scalingMode;

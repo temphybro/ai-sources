@@ -6,8 +6,6 @@
 
 package com.google.appinventor.client.explorer;
 
-import com.google.gwt.dom.client.NativeEvent;
-
 /**
  * Defines an interface for an item in the source structure explorer.
  *
@@ -17,7 +15,7 @@ public interface SourceStructureExplorerItem {
   /**
    * Invoked when this item is selected.
    */
-  void onSelected(NativeEvent source);
+  void onSelected();
 
   /**
    * Invoked when this item is expanded or collapsed

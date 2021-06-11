@@ -1,16 +1,10 @@
 // -*- mode: java; c-basic-offset: 2; -*-
 // Copyright 2009-2011 Google, All Rights reserved
-// Copyright 2011-2020 MIT, All rights reserved
+// Copyright 2011-2018 MIT, All rights reserved
 // Released under the Apache License, Version 2.0
 // http://www.apache.org/licenses/LICENSE-2.0
 
 package com.google.appinventor.components.runtime;
-
-import android.Manifest;
-import android.app.Activity;
-import android.content.ActivityNotFoundException;
-import android.content.ComponentName;
-import android.content.Intent;
 
 import com.google.appinventor.components.annotations.DesignerComponent;
 import com.google.appinventor.components.annotations.DesignerProperty;
@@ -19,9 +13,9 @@ import com.google.appinventor.components.annotations.SimpleEvent;
 import com.google.appinventor.components.annotations.SimpleFunction;
 import com.google.appinventor.components.annotations.SimpleObject;
 import com.google.appinventor.components.annotations.SimpleProperty;
-import com.google.appinventor.components.annotations.UsesActivities;
 import com.google.appinventor.components.annotations.UsesLibraries;
 import com.google.appinventor.components.annotations.UsesPermissions;
+import com.google.appinventor.components.annotations.UsesActivities;
 import com.google.appinventor.components.annotations.androidmanifest.ActivityElement;
 import com.google.appinventor.components.common.ComponentCategory;
 import com.google.appinventor.components.common.PropertyTypeConstants;
@@ -29,8 +23,15 @@ import com.google.appinventor.components.common.YaVersion;
 import com.google.appinventor.components.runtime.util.ErrorMessages;
 import com.google.appinventor.components.runtime.util.SdkLevel;
 
+import android.app.Activity;
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
+import android.content.ComponentName;
+
+import android.Manifest;
+
 /**
- * Component for scanning a QR code and getting back the resulting string.
+ * Component for scanning a barcode and getting back the resulting string.
  *
  * @author sharon@google.com (Sharon Perl)
  */
@@ -49,9 +50,9 @@ import com.google.appinventor.components.runtime.util.SdkLevel;
                      windowSoftInputMode = "stateAlwaysHidden")
 })
 @UsesPermissions(permissionNames = "android.permission.CAMERA")
-@UsesLibraries(libraries = "Barcode.jar,QRGenerator.jar")
+@UsesLibraries(libraries = "Barcode.jar,core.jar")
 public class BarcodeScanner extends AndroidNonvisibleComponent
-    implements ActivityResultListener, Component {
+  implements ActivityResultListener, Component {
 
   private static final String SCAN_INTENT = "com.google.zxing.client.android.SCAN";
   private static final String LOCAL_SCAN = "com.google.zxing.client.android.AppInvCaptureActivity";
@@ -76,7 +77,7 @@ public class BarcodeScanner extends AndroidNonvisibleComponent
   }
 
   /**
-   * Gets the text result of the previous scan.
+   * Result property getter method.
    */
   @SimpleProperty(description = "Text result of the previous scan.",
       category = PropertyCategory.BEHAVIOR)
@@ -164,7 +165,7 @@ public class BarcodeScanner extends AndroidNonvisibleComponent
   /**
    * Set whether or not you wish to use an External Scanning program such as
    * Bar Code Scanner. If false a version of ZXing integrated into App Inventor
-   * will be used.
+   * Will be used.
    *
    * @param useExternalScanner  Set true to use an external scanning program,
    *                            false to use internal copy of ZXing.

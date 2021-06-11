@@ -24,12 +24,6 @@ import android.os.Build;
 import android.speech.RecognizerIntent;
 
 /**
- * ![SpeechRecognizer icon](images/speechrecognizer.png)
- *
- * Use a `SpeechRecognizer` component to listen to the user speaking and convert the spoken sound
- * into text using the device's speech recognition feature.
- *
- * @internaldoc
  * Component for using the built in VoiceRecognizer to convert speech to text.
  * For more details, please see:
  * http://developer.android.com/reference/android/speech/RecognizerIntent.html
@@ -72,7 +66,7 @@ public class SpeechRecognizer extends AndroidNonvisibleComponent
   }
 
   /**
-   * Returns the last text produced by the recognizer.
+   * Result property getter method.
    */
   @SimpleProperty(
       category = PropertyCategory.BEHAVIOR)
@@ -81,8 +75,8 @@ public class SpeechRecognizer extends AndroidNonvisibleComponent
   }
 
   /**
-   * Asks the user to speak, and converts the speech to text. Signals the
-   * {@link #AfterGettingText(String, boolean)} event when the result is available.
+   * Solicits speech input from the user.  After the speech is converted to
+   * text, the AfterGettingText event will be raised.
    */
   @SimpleFunction
   public void GetText() {
@@ -116,8 +110,7 @@ public class SpeechRecognizer extends AndroidNonvisibleComponent
   /**
    * Function used to forcefully stop listening speech in cases where
    * SpeechRecognizer cannot stop automatically.
-   * This function works only when the {@link #UseLegacy(boolean)} property is
-   * set to `false`{:.logic.block}.
+   * This function works only when UseLegacy property is set to 'false'.
    */
   @SimpleFunction
   public void Stop() {
@@ -127,7 +120,7 @@ public class SpeechRecognizer extends AndroidNonvisibleComponent
   }
 
   /**
-   * Simple event to raise when the `SpeechRecognizer` is invoked but before its
+   * Simple event to raise when VoiceReco is invoked but before the VoiceReco
    * activity is started.
    */
   @SimpleEvent
@@ -136,13 +129,9 @@ public class SpeechRecognizer extends AndroidNonvisibleComponent
   }
 
   /**
-   * Simple event to raise after the SpeechRecognizer has recognized speech. If
-   * {@link #UseLegacy(boolean)} is `true`{:.logic.block}, then this event will only happen once
-   * at the very end of the recognition. If {@link #UseLegacy(boolean)} is `false`{:.logic.block},
-   * then this event will run multiple times as the `SpeechRecognizer` incrementally recognizes
-   * speech. In this case, `partial` will be `true`{:.logic.block} until the recognized speech
-   * has been finalized (e.g., the user has stopped speaking), in which case `partial` will be
-   * `false`{:.logic.block}.
+   * Simple event to raise after the VoiceReco activity has returned.
+   * Partial is 'false' when SpeechRecognizer stops automatically after listening,
+   * else it is 'true' if SpeechRecognizer returns partial results.
    */
   @SimpleEvent
   public void AfterGettingText(String result, boolean partial) {
@@ -190,20 +179,10 @@ public class SpeechRecognizer extends AndroidNonvisibleComponent
     return useLegacy;
   }
 
-  /**
-   * If true, a separate dialog is used to recognize speech (the default). If false, speech is
-   * recognized in the background and updates are received as it recognizes words.
-   * {@link #AfterGettingText(String, boolean)} may get several calls with `partial` set to `true`{:.logic.block}.
-   * Once sufficient time has elapsed since the last utterance, or `StopListening` is called,
-   * the last string will be returned with `partial` set to `false`{:.logic.block} to indicate that it is the
-   * final recognized string and no more data will be provided until recognition is again started. See
-   * {@link #AfterGettingText(String, boolean)} for more details on partial speech recognition.
-   * @param useLegacy
-   */
   @DesignerProperty(editorType = PropertyTypeConstants.PROPERTY_TYPE_BOOLEAN,
       defaultValue = "True")
-  @SimpleProperty(description = "If true, a separate dialog is used to recognize speech "
-      + "(the default). If false, speech is recognized in the background and "
+  @SimpleProperty(description = "If true, a separate dialog is used to recognize speech. "
+      + "If false, speech is recognized without changing the user interface and "
       + "partial results are also provided.")
   public void UseLegacy(boolean useLegacy) {
     this.useLegacy = useLegacy;

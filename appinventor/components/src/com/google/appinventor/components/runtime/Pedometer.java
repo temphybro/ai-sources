@@ -31,7 +31,7 @@ import android.util.Log;
  */
 @DesignerComponent(version = YaVersion.PEDOMETER_COMPONENT_VERSION,
   description = "A Component that acts like a Pedometer. It senses motion via the " +
-  "Accelerometer and attempts to determine if a step has been " +
+  "Accerleromter and attempts to determine if a step has been " +
   "taken. Using a configurable stride length, it can estimate the " +
   "distance traveled as well. ",
   category = ComponentCategory.SENSORS,
@@ -117,17 +117,11 @@ public class Pedometer extends AndroidNonvisibleComponent
    */
   @SimpleFunction(description = "Stop counting steps")
   public void Stop() {
-    if (!pedometerPaused) {
-      pedometerPaused = true;
-      sensorManager.unregisterListener(this);
-      Log.d(TAG, "Unregistered listener on pause");
-      prevStopClockTime += (System.currentTimeMillis() - startTime);
-    }
+    Pause();
   }
 
   /**
    * Resets the step count, distance, and clock.
-   * @suppressdoc
    */
   @SimpleFunction(description = "Resets the step counter, distance measure and time running.")
   public void Reset() {
@@ -139,26 +133,28 @@ public class Pedometer extends AndroidNonvisibleComponent
   }
 
   /**
-   * This method has been deprecated. Use {@link #Start()} instead.
+   * Resumes the counting of steps.
    */
-  @Deprecated
   @SimpleFunction(description = "Resumes counting, synonym of Start.")
   public void Resume() {
     Start();
   }
 
   /**
-   * This method has been deprecated. Use {@link #Stop()} instead.
+   * Pauses the counting of steps.
    */
-  @Deprecated
   @SimpleFunction(description = "Pause counting of steps and distance.")
   public void Pause() {
-    Stop();
+    if (!pedometerPaused) {
+      pedometerPaused = true;
+      sensorManager.unregisterListener(this);
+      Log.d(TAG, "Unregistered listener on pause");
+      prevStopClockTime += (System.currentTimeMillis() - startTime);
+    }
   }
 
   /**
    * Saves the pedometer state to shared preferences.
-   * @suppressdoc
    */
   @SimpleFunction(description = "Saves the pedometer state to the phone. Permits " +
     "permits accumulation of steps and distance between invocations of an App that uses " +
@@ -188,9 +184,8 @@ public class Pedometer extends AndroidNonvisibleComponent
    *
    * @param simpleSteps number of raw steps detected
    * @param distance approximate distance covered by number of simpleSteps in meters
-   * @suppressdoc
    */
-  @SimpleEvent(description = "This event is run when a raw step is detected.")
+  @SimpleEvent(description = "This event is run when a raw step is detected")
   public void SimpleStep(int simpleSteps, float distance) {
     EventDispatcher.dispatchEvent(this, "SimpleStep", simpleSteps, distance);
   }
@@ -201,7 +196,6 @@ public class Pedometer extends AndroidNonvisibleComponent
    *
    * @param walkSteps number of walking steps detected
    * @param distance approximate distance covered by the number of walkSteps in meters
-   * @suppressdoc
    */
   @SimpleEvent(description = "This event is run when a walking step is detected. " +
     "A walking step is a step that appears to be involved in forward motion.")
@@ -451,53 +445,51 @@ public class Pedometer extends AndroidNonvisibleComponent
   // that has them is loaded.
 
   @Deprecated
-  @SimpleEvent(description = "This event has been deprecated.")
+  @SimpleEvent
   public void StartedMoving() {
   }
 
   @Deprecated
-  @SimpleEvent(description = "This event has been deprecated.")
+  @SimpleEvent
   public void StoppedMoving() {
 
   }
 
   @Deprecated
-  @SimpleProperty(category = PropertyCategory.BEHAVIOR,
-      description = "This property has been deprecated.")
+  @SimpleProperty(category = PropertyCategory.BEHAVIOR)
   public void UseGPS(boolean gps) {
   }
 
   @Deprecated
-  @SimpleEvent(description = "This event has been deprecated.")
+  @SimpleEvent
   public void CalibrationFailed() {
   }
 
   @Deprecated
-  @SimpleEvent(description = "This event has been deprecated.")
+  @SimpleEvent
   public void GPSAvailable() {
   }
 
   @Deprecated
-  @SimpleEvent(description = "This event has been deprecated.")
+  @SimpleEvent
   public void GPSLost() {
   }
 
   // Properties
 
   @Deprecated
-  @SimpleProperty(category = PropertyCategory.BEHAVIOR,
-      description = "This property has been deprecated.")
+  @SimpleProperty(category = PropertyCategory.BEHAVIOR)
   public void CalibrateStrideLength(boolean cal) {
   }
 
   @Deprecated
-  @SimpleProperty(description = "This property has been deprecated.")
+  @SimpleProperty
   public boolean CalibrateStrideLength() {
     return false;
   }
 
   @Deprecated
-  @SimpleProperty(description = "This property has been deprecated.")
+  @SimpleProperty
   public boolean Moving() {
     return false;
   }

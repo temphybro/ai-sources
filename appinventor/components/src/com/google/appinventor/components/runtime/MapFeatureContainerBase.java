@@ -34,8 +34,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import static com.google.appinventor.components.runtime.util.GeoJSONUtil.getGeoJSONFeatures;
-import static com.google.appinventor.components.runtime.util.GeoJSONUtil.getGeoJSONType;
 import static com.google.appinventor.components.runtime.util.GeoJSONUtil.processGeoJSONFeature;
 
 @SimpleObject
@@ -120,9 +118,7 @@ public abstract class MapFeatureContainerBase extends AndroidViewComponent imple
   }
 
   /**
-   * Gets the list of features attached to the `%type%` (without regard to the value of the
-   * feature's `Visible`{:.getter.block} property). This list also includes any features created on
-   * the `%type%` by calls to {@link #FeatureFromDescription(YailList)}.
+   * Get the list of features attached to this map. This list includes features with Visible set to false.
    *
    * @return A YailList of map features, e.g., Marker, LineString
    */
@@ -133,14 +129,6 @@ public abstract class MapFeatureContainerBase extends AndroidViewComponent imple
     return YailList.makeList(features);
   }
 
-  /**
-   * When a feature is clicked, the parent `%type%` will also receive a `FeatureClick` event.
-   * The `feature` parameter indicates which child feature was clicked. This event is run *after*
-   * the `Click` event on the corresponding feature and after the `when any ... Click` event if one
-   * is provided.
-   *
-   * @param feature the clicked feature
-   */
   @SimpleEvent(description = "The user clicked on a map feature.")
   public void FeatureClick(MapFactory.MapFeature feature) {
     EventDispatcher.dispatchEvent(this, "FeatureClick", feature);
@@ -149,14 +137,6 @@ public abstract class MapFeatureContainerBase extends AndroidViewComponent imple
     }
   }
 
-  /**
-   * When a feature is long-clicked, the parent `%type%` will also receive a `FeatureLongClick`
-   * event. The `feature` parameter indicates which child feature was long-clicked. This event is
-   * run *after* the `LongClick` event on the corresponding feature and after the
-   * `when any ... LongClick` event if one is provided.
-   *
-   * @param feature the long-clicked feature
-   */
   @SimpleEvent(description = "The user long-pressed on a map feature.")
   public void FeatureLongClick(MapFactory.MapFeature feature) {
     EventDispatcher.dispatchEvent(this, "FeatureLongClick", feature);
@@ -165,14 +145,6 @@ public abstract class MapFeatureContainerBase extends AndroidViewComponent imple
     }
   }
 
-  /**
-   * When the user starts dragging a feature, the parent `%type%` will also receive a
-   * `FeatureStartDrag` event. The `feature` parameter indicates which child feature was dragged.
-   * This event is run *after* the `StartDrag` event on the corresponding feature and after the
-   * `when any ... StartDrag` event if one is provided.
-   *
-   * @param feature the dragged feature
-   */
   @SimpleEvent(description = "The user started dragging a map feature.")
   public void FeatureStartDrag(MapFactory.MapFeature feature) {
     EventDispatcher.dispatchEvent(this, "FeatureStartDrag", feature);
@@ -181,14 +153,6 @@ public abstract class MapFeatureContainerBase extends AndroidViewComponent imple
     }
   }
 
-  /**
-   * When the user drags a feature, the parent `%type%` will also receive a `FeatureDrag` event.
-   * The `feature` parameter indicates which child feature was dragged. This event is run *after*
-   * the `Drag` event on the corresponding feature and after the `when any ... Drag` event if one is
-   * provided.
-   *
-   * @param feature the dragged feature
-   */
   @SimpleEvent(description = "The user dragged a map feature.")
   public void FeatureDrag(MapFactory.MapFeature feature) {
     EventDispatcher.dispatchEvent(this, "FeatureDrag", feature);
@@ -197,14 +161,6 @@ public abstract class MapFeatureContainerBase extends AndroidViewComponent imple
     }
   }
 
-  /**
-   * When the user stops dragging a feature, the parent `%type%` will also receive a
-   * `FeatureStopDrag` event. The `feature` parameter indicates which child feature was dragged.
-   * This event is run *after* the `StopDrag` event on the corresponding feature and after the
-   * `when any ... StopDrag` event if one is provided.
-   *
-   * @param feature the dragged feature
-   */
   @SimpleEvent(description = "The user stopped dragging a map feature.")
   public void FeatureStopDrag(MapFactory.MapFeature feature) {
     EventDispatcher.dispatchEvent(this, "FeatureStopDrag", feature);
@@ -214,11 +170,11 @@ public abstract class MapFeatureContainerBase extends AndroidViewComponent imple
   }
 
   /**
-   * Loads a feature collection in GeoJSON format from the given `url`. On success,
-   * the event {@link #GotFeatures(String, YailList)} will be raised with the given `url`
-   * and a list of `feature`s parsed from the GeoJSON as a list of (key, value) pairs. On failure,
-   * the {@link #LoadError(String, int, String)} event will be raised with any applicable HTTP
-   * response code and error message.
+   * Load a feature collection in GeoJSON
+   * format from the given url. On success, the event GotFeatures will be raised with the given url
+   * and a list of features parsed from the GeoJSON as a list of (key, value) pairs. On failure,
+   * the LoadError event will be raised with any applicable HTTP response code and error
+   * message.
    *
    * @param url The URL from which to read a GeoJSON-encoded feature collection
    */
@@ -237,22 +193,19 @@ public abstract class MapFeatureContainerBase extends AndroidViewComponent imple
   }
 
   /**
-   * Converts a feature description into an App Inventor map feature. Points are converted into
-   * {@link Marker} components, LineStrings are converted into {@link LineString} components, and
-   * Polygons (and MultiPolygons) are converted into {@link Polygon} components. If the feature has
+   * Convert a feature description into an App Inventor map feature. Currently the only
+   * supported conversion is from a GeoJSON point to Marker component. If the feature has
    * properties, they will be mapped into App Inventor properties using the following mapping:
    *
-   *   * description becomes `Description`
-   *   * draggable becomes `Draggable`
-   *   * infobox becomes `EnableInfobox`
-   *   * fill becomes `FillColor`
-   *   * fill-opacity becomes `FillOpacity`
-   *   * image becomes `ImageAsset`
-   *   * stroke becomes `StrokeColor`
-   *   * stroke-opacity becomes `StrokeOpacity`
-   *   * stroke-width becomes `StrokeWidth`
-   *   * title becomes `Title`
-   *   * visible becomes `Visible`
+   * description becomes Description;
+   * draggable becomes Draggable;
+   * infobox becomes EnableInfobox;
+   * fill becomes FillColor;
+   * image becomes ImageAsset;
+   * stroke becomes StrokeColor;
+   * stroke-width becomes StrokeWidth;
+   * title becomes Title;
+   * visible becomes Visible
    *
    * @param description The description of a map feature, as a list of key-value pairs.
    * @return A new component representing the feature, or a string indicating an error.
@@ -268,15 +221,6 @@ public abstract class MapFeatureContainerBase extends AndroidViewComponent imple
     }
   }
 
-  /**
-   * The `GotFeatures` event is run when when a feature collection is successfully read from the
-   * given `url`{:.variable.block}. The `features`{:.variable.block} parameter will be a list of
-   * feature descriptions that can be converted into components using the
-   * {@link #FeatureFromDescription(YailList)} method.
-   *
-   * @param url the url corresponding to the requested url in {@link #LoadFromURL(String)}
-   * @param features the list of feature descriptions read from the resource at {@code url}
-   */
   @SimpleEvent(description = "A GeoJSON document was successfully read from url. The features " +
       "specified in the document are provided as a list in features.")
   public void GotFeatures(String url, YailList features) {
@@ -290,12 +234,6 @@ public abstract class MapFeatureContainerBase extends AndroidViewComponent imple
     }
   }
 
-  /**
-   * The `LoadError` event is run when an error occurs while processing a feature collection
-   * document at the given `url`{:.variable.block}. The `responseCode`{:.variable.block} parameter
-   * will contain an HTTP status code and the `errorMessage`{:.variable.block} parameter will
-   * contain a detailed error message.
-   */
   @SimpleEvent(description = "An error was encountered while processing a GeoJSON document at " +
       "the given url. The responseCode parameter will contain an HTTP status code and the " +
       "errorMessage parameter will contain a detailed error message.")
@@ -341,11 +279,6 @@ public abstract class MapFeatureContainerBase extends AndroidViewComponent imple
   public void removeFeature(MapFactory.MapFeature feature) {
     features.remove(feature);
     getMap().removeFeature(feature);
-  }
-
-  @Override
-  public Iterator<MapFeature> iterator() {
-    return features.iterator();
   }
 
   void addFeature(MapFactory.MapMarker marker) {
@@ -440,7 +373,8 @@ public abstract class MapFeatureContainerBase extends AndroidViewComponent imple
 
   @SuppressWarnings("WeakerAccess")
   protected void processGeoJSON(final String url, final String content) throws JSONException {
-    String type = getGeoJSONType(content, GEOJSON_TYPE);
+    JSONObject parsedData = new JSONObject(stripBOM(content));
+    String type = parsedData.optString(GEOJSON_TYPE);
     if (!GEOJSON_FEATURECOLLECTION.equals(type) && !GEOJSON_GEOMETRYCOLLECTION.equals(type)) {
       $form().runOnUiThread(new Runnable() {
         public void run() {
@@ -450,11 +384,71 @@ public abstract class MapFeatureContainerBase extends AndroidViewComponent imple
       });
       return;
     }
-    final List<YailList> yailFeatures = getGeoJSONFeatures(TAG, content);
+    JSONArray features = parsedData.getJSONArray(GEOJSON_FEATURES);
+    final List<YailList> yailFeatures = new ArrayList<YailList>();
+    for (int i = 0; i < features.length(); i++) {
+      yailFeatures.add(jsonObjectToYail(features.getJSONObject(i)));
+    }
     $form().runOnUiThread(new Runnable() {
       public void run() {
         MapFeatureContainerBase.this.GotFeatures(url, YailList.makeList(yailFeatures));
       }
     });
   }
+
+  private YailList jsonObjectToYail(JSONObject object) throws JSONException {
+    List<YailList> pairs = new ArrayList<YailList>();
+    @SuppressWarnings("unchecked")  // json only allows String keys
+        Iterator<String> j = object.keys();
+    while (j.hasNext()) {
+      String key = j.next();
+      Object value = object.get(key);
+      if (value instanceof Boolean ||
+          value instanceof Integer ||
+          value instanceof Long ||
+          value instanceof Double ||
+          value instanceof String) {
+        pairs.add(YailList.makeList(new Object[] { key, value }));
+      } else if (value instanceof JSONArray) {
+        pairs.add(YailList.makeList(new Object[] { key, jsonArrayToYail((JSONArray) value)}));
+      } else if (value instanceof JSONObject) {
+        pairs.add(YailList.makeList(new Object[] { key, jsonObjectToYail((JSONObject) value)}));
+      } else if (!JSONObject.NULL.equals(value)) {
+        Log.wtf(TAG, ERROR_UNKNOWN_TYPE + ": " + value.getClass());
+        throw new IllegalArgumentException(ERROR_UNKNOWN_TYPE);
+      }
+    }
+    return YailList.makeList(pairs);
+  }
+
+  private YailList jsonArrayToYail(JSONArray array) throws JSONException {
+    List<Object> items = new ArrayList<Object>();
+    for (int i = 0; i < array.length(); i++) {
+      Object value = array.get(i);
+      if (value instanceof Boolean ||
+          value instanceof Integer ||
+          value instanceof Long ||
+          value instanceof Double ||
+          value instanceof String) {
+        items.add(value);
+      } else if (value instanceof JSONArray) {
+        items.add(jsonArrayToYail((JSONArray) value));
+      } else if (value instanceof JSONObject) {
+        items.add(jsonObjectToYail((JSONObject) value));
+      } else if (!JSONObject.NULL.equals(value)) {
+        Log.wtf(TAG, ERROR_UNKNOWN_TYPE + ": " + value.getClass());
+        throw new IllegalArgumentException(ERROR_UNKNOWN_TYPE);
+      }
+    }
+    return YailList.makeList(items);
+  }
+
+  private static String stripBOM(String content) {
+    if (content.charAt(0) == '\uFEFF') {
+      return content.substring(1);
+    } else {
+      return content;
+    }
+  }
+
 }

@@ -50,9 +50,6 @@ class ComponentDatabase implements ComponentDatabaseInterface {
     components = new HashMap<String, ComponentDefinition>();
     List<String> newComponents = new ArrayList<String>();
     for (JSONValue component : array.getElements()) {
-      if (component.asObject().get("external").asString().getString().equals("true")) {
-        continue;
-      }
       if (initComponent(component.asObject())) {
         newComponents.add(component.asObject().get("name").asString().getString());
       }
@@ -170,7 +167,7 @@ class ComponentDatabase implements ComponentDatabaseInterface {
   public String getComponentName(String componentType) {
     for (String componentName : components.keySet()) {
       ComponentDefinition component = components.get(componentName);
-      if (componentType.equals(component.getType())) {
+      if (component.getType() == componentType) {
         return componentName;
       }
     }
@@ -253,15 +250,6 @@ class ComponentDatabase implements ComponentDatabaseInterface {
       throw new ComponentNotFoundException(componentName);
     }
     return component.getIconName();
-  }
-
-  @Override
-  public String getLicenseName(String componentName) {
-    ComponentDefinition component = components.get(componentName);
-    if (component == null) {
-      throw new ComponentNotFoundException(componentName);
-    }
-    return component.getLicenseName();
   }
 
   @Override
@@ -350,9 +338,7 @@ class ComponentDatabase implements ComponentDatabaseInterface {
         properties.containsKey("helpUrl") ? properties.get("helpUrl").asString().getString() : "",
         Boolean.valueOf(properties.get("showOnPalette").asString().getString()),
         Boolean.valueOf(properties.get("nonVisible").asString().getString()),
-        properties.get("iconName").asString().getString(),
-        properties.containsKey("licenseName") ? properties.get("licenseName").asString().getString() : "",
-        componentNode.toJson());
+        properties.get("iconName").asString().getString(), componentNode.toJson());
     findComponentProperties(component, properties.get("properties").asArray());
     findComponentBlockProperties(component, properties.get("blockProperties").asArray());
     findComponentEvents(component, properties.get("events").asArray());
@@ -514,7 +500,7 @@ class ComponentDatabase implements ComponentDatabaseInterface {
 
   private void fireResetDatabase() {
     for (ComponentDatabaseChangeListener listener : copyComponentDatbaseChangeListeners()) {
-      listener.onResetDatabase();
+      listener.onResetDatabase();;
     }
   }
 
